@@ -1,26 +1,272 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-page: var(--page);
+  --color-sidebar: var(--sidebar);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-pill: var(--pill);
+  --color-pill-ink: var(--pill-ink);
+  --color-blue: var(--blue);
+  --color-powder-blue: var(--powder-blue);
+  --color-navy: var(--navy);
+  --color-brown: var(--brown);
+  --color-copper: var(--copper);
+  --color-beige: var(--beige);
+  --color-cream: var(--cream);
+  --color-cream-ink: var(--cream-ink);
+  --color-line: var(--line);
+  --color-tile: var(--tile);
+  --color-plate: var(--plate);
+  --color-plate-ink: var(--plate-ink);
+  --font-sans: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), var(--font-dm), ui-sans-serif, system-ui,
+    sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* GLOBAL PALETTE: BLUE, POWDER BLUE, BROWN, BEIGE, WHITE, BLACK */
+  --page: #f7f4ed; /* Soft warm beige / linen */
+  --sidebar: #ffffff; /* Crisp white */
+  --card: #ffffff; /* Crisp white */
+  --ink: #0a0d12; /* Deep obsidian black */
+  --muted: #4a5b73; /* Refined slate / powder-blue tinted muted text */
+  --pill: #ede5da; /* Warm beige */
+  --pill-ink: #0a0d12; /* Deep black */
+  --blue: #1d4ed8; /* Vibrant technical royal blue */
+  --powder-blue: #93c5fd; /* Soft, airy powder blue */
+  --navy: #152b47; /* Technical deep navy/blue */
+  --brown: #784421; /* Warm rich brown */
+  --copper: #92562d; /* Warm bronze / copper brown */
+  --beige: #ede5da; /* Warm beige */
+  --cream: #faf7f2; /* Warm cream */
+  --cream-ink: #0a0d12; /* Black */
+  --line: #e3ded5; /* Warm beige/slate line */
+  --tile: #f1ede5; /* Warm beige tile */
+  --plate: #f4f4ed; /* Warm beige plate */
+  --plate-ink: #0a0d12; /* Black */
+  --grid-dot: rgba(10, 13, 18, 0.06); /* Very subtle technical dot */
+  --grid-line: rgba(10, 13, 18, 0.025);
+  --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 1px 3px rgba(10, 13, 18, 0.04), 0 12px 28px rgba(10, 13, 18, 0.04);
+  --glass-shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 12px rgba(10, 13, 18, 0.06), 0 18px 36px rgba(10, 13, 18, 0.07);
+  --shadow: var(--glass-shadow);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  /* TRUE OLED PITCH-BLACK PALETTE */
+  --page: #000000; /* Pure pitch black */
+  --sidebar: #000000; /* Pure pitch black */
+  --card: #0a0a0a; /* Obsidian black card surface */
+  --ink: #ffffff; /* Crisp pure white */
+  --muted: #a1a1aa; /* Clean neutral zinc/slate text (no blue tint) */
+  --pill: #ede5da; /* Warm beige pill */
+  --pill-ink: #000000; /* Pure black */
+  --blue: #3b82f6; /* Vibrant technical sapphire blue */
+  --powder-blue: #93c5fd; /* Soft luminous powder blue */
+  --navy: #0f172a; /* Neutral slate navy */
+  --brown: #b57a4c; /* Warm golden brown */
+  --copper: #c28757; /* Warm copper/bronze */
+  --beige: #dfd4c4; /* Soft warm beige */
+  --cream: #ede5da; /* Warm beige/cream */
+  --cream-ink: #000000; /* Pure black */
+  --line: #222222; /* Clean neutral dark border line */
+  --tile: #121212; /* Clean neutral dark tile */
+  --plate: #ede5da; /* Warm beige plate */
+  --plate-ink: #000000; /* Pure black */
+  --grid-dot: rgba(255, 255, 255, 0.07); /* Subtle white dot */
+  --grid-line: rgba(255, 255, 255, 0.025);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 4px 24px rgba(0, 0, 0, 0.85);
+  --glass-shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 36px rgba(0, 0, 0, 0.95);
+  --shadow: var(--glass-shadow);
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   VERY SUBTLE DOT BACKGROUND ONLY
+   ========================================================================== */
+
+html,
+body,
+.bg-page {
+  background-color: var(--page);
+  background-image: radial-gradient(circle at center, var(--grid-dot) 1.1px, transparent 1.1px);
+  background-size: 28px 28px;
+  background-position: 0 0;
+  color: var(--ink);
+  min-height: 100%;
+}
+
+aside.bg-sidebar {
+  background-image: radial-gradient(circle at center, var(--grid-dot) 1.05px, transparent 1.05px);
+  background-size: 28px 28px;
+  background-position: 0 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--pill);
+  color: var(--pill-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   OPTICAL TYPOGRAPHY (APPLE HIG RULES)
+   ========================================================================== */
+
+h1,
+h2,
+.font-heading {
+  letter-spacing: -0.032em;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+h3,
+h4 {
+  letter-spacing: -0.022em;
+}
+
+.eyebrow {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   TACTILE PHYSICS & SPRING CURVES
+   ========================================================================== */
+
+button,
+a,
+[role="button"] {
+  transition-timing-function: var(--ease-spring);
+}
+
+button:active,
+a:active,
+[role="button"]:active {
+  transform: scale(0.975);
+  transition-duration: 90ms !important;
+}
+
+/* ==========================================================================
+   GLASS BEVEL SPECULAR LIGHTING & NON-INVERTING PLATES
+   ========================================================================== */
+
+.glass-plate {
+  box-shadow: var(--glass-shadow);
+  transition: transform 240ms var(--ease-spring), box-shadow 240ms var(--ease-spring), border-color 240ms var(--ease-spring);
+}
+
+.glass-plate:hover {
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.glass-plate:active {
+  transform: scale(0.985);
+  transition-duration: 90ms !important;
+}
+
+.brand-plate {
+  background-color: var(--plate);
+  color: var(--plate-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+@keyframes tools-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.tools-track {
+  width: max-content;
+  animation: tools-marquee 40s linear infinite;
+}
+
+.tools-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes projects-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.projects-track {
+  width: max-content;
+  animation: projects-marquee 36s linear infinite;
+}
+
+.projects-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+
+  .tools-track,
+  .projects-track {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   SCROLLBAR UTILITIES (CLEAN, MODERN & AIRY)
+   ========================================================================== */
+
+/* Completely hide scrollbars on chips and horizontal sliders */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0px;
+  height: 0px;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Elegant ultra-thin translucent scrollbar for chat message panes */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(147, 197, 253, 0.22);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 197, 253, 0.45);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(147, 197, 253, 0.22) transparent;
 }
