@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -33,35 +34,60 @@ export const useSidebar = () => useContext(SidebarContext);
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  // SSR-safe: server + hydration both render `false` so HTML matches.
+  // The real preference is synced post-hydration from the pre-hydration
+  // <script> (html[data-sidebar]) + localStorage. Visual flash is covered
+  // by CSS in globals.css driven by html[data-sidebar].
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const mainWrapperRef = useRef<HTMLDivElement>(null);
+  const initialAnimateRef = useRef(false);
   const pathname = usePathname();
 
-  // Hydration-safe initial check for persisted collapsed state
+  // Post-hydration only: restore preference without hydration mismatch.
   useEffect(() => {
-    setMounted(true);
+    let next = false;
     try {
-      const saved = localStorage.getItem("portfolio-sidebar-collapsed");
-      if (saved === "true") {
-        setCollapsed(true);
-      }
+      const attr = document.documentElement.getAttribute("data-sidebar");
+      if (attr === "collapsed") next = true;
+      else if (attr === "expanded") next = false;
+      else next = localStorage.getItem("portfolio-sidebar-collapsed") === "true";
     } catch {
-      // localStorage may be disabled in private mode
+      next = false;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCollapsed(next);
+    try {
+      const mq = window.matchMedia("(min-width: 1024px)");
+      setIsDesktop(mq.matches);
+      const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+      mq.addEventListener("change", onChange);
+      setMounted(true);
+      return () => mq.removeEventListener("change", onChange);
+    } catch {
+      setIsDesktop(false);
+      setMounted(true);
     }
   }, []);
 
-  const toggleCollapsed = () => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem("portfolio-sidebar-collapsed", String(next));
-      } catch {
-        // localStorage error fallback
-      }
-      return next;
-    });
-  };
+  // Persist every change (pure updater friendly, survives StrictMode double-invoke)
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem("portfolio-sidebar-collapsed", String(collapsed));
+      document.documentElement.setAttribute(
+        "data-sidebar",
+        collapsed ? "collapsed" : "expanded",
+      );
+    } catch {
+      // localStorage may be disabled in private mode
+    }
+  }, [collapsed, mounted]);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((prev) => !prev);
+  }, []);
 
   // Optional keyboard shortcut '[' for fast toggle without any UI label
   useEffect(() => {
@@ -75,14 +101,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [toggleCollapsed]);
 
-  // Animate main container padding-left when sidebar collapses on desktop
+  // Animate main container padding-left when sidebar collapses on desktop.
+  // First mount: set instantly (no flash animation) since CSS already shows
+  // the correct width pre-hydration.
   useEffect(() => {
-    if (!mounted || typeof window === "undefined" || window.innerWidth < 1024) return;
+    if (!mounted || !isDesktop) return;
     const targetPl = collapsed ? 72 : 260;
 
     if (mainWrapperRef.current) {
+      if (!initialAnimateRef.current) {
+        gsap.set(mainWrapperRef.current, { paddingLeft: targetPl });
+        initialAnimateRef.current = true;
+        return;
+      }
       gsap.to(mainWrapperRef.current, {
         paddingLeft: targetPl,
         duration: 0.5,
@@ -93,7 +126,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         },
       });
     }
-  }, [collapsed, mounted]);
+  }, [collapsed, mounted, isDesktop]);
 
   return (
     <SidebarContext.Provider value={{ collapsed, toggleCollapsed }}>
@@ -107,14 +140,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div
           ref={mainWrapperRef}
+          data-main-wrapper
           className="relative flex min-h-dvh flex-col transition-none"
           style={{
-            paddingLeft:
-              mounted && typeof window !== "undefined" && window.innerWidth >= 1024
-                ? collapsed
-                  ? 72
-                  : 260
-                : undefined,
+            paddingLeft: mounted && isDesktop ? (collapsed ? 72 : 260) : undefined,
           }}
         >
           <TopBar onOpenMobile={() => setMobileOpen(true)} />

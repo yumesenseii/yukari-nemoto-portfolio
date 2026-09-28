@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ThemedPortrait } from "@/components/themed-portrait";
 import { cn } from "@/lib/cn";
 import { profile } from "@/lib/data";
 
@@ -24,12 +24,9 @@ export function Avatar({
         className,
       )}
     >
-      <Image
-        src="/yukari-portrait.jpg"
+      <ThemedPortrait
         alt={profile.name}
-        fill
         sizes="(max-width: 768px) 50px, 100px"
-        className="object-cover object-top"
       />
     </div>
   );

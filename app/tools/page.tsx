@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -9,6 +10,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import { useTheme } from "@/components/theme-provider";
 import {
   CanvaLogo,
   CapCutLogo,
@@ -75,6 +77,13 @@ function RealToolLogo({
 
 export default function ToolsPage() {
   const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const themeContext = useTheme();
+  const isDark = themeContext?.theme === "dark";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close modal on Escape key
   const handleKeyDown = useCallback(
@@ -370,17 +379,17 @@ export default function ToolsPage() {
       </section>
 
       {/* 4. STUDIO SPECIMEN MODAL (Bespoke & Editorial) */}
-      {selectedTool && (
+      {mounted && selectedTool && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-tool-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
         >
-          {/* Backdrop with Blur */}
+          {/* Backdrop with Soft Blur */}
           <div
             onClick={() => setSelectedTool(null)}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity dark:bg-black/85"
+            className="fixed inset-0 bg-black/35 backdrop-blur-sm transition-opacity dark:bg-black/75 dark:backdrop-blur-md"
             aria-hidden
           />
 
@@ -388,7 +397,9 @@ export default function ToolsPage() {
           <div
             className="relative z-10 w-full max-w-lg rounded-3xl border border-line/80 bg-card p-6 sm:p-7 shadow-2xl transition-all overflow-hidden dark:bg-[#0c0e12] dark:border-white/[0.08]"
             style={{
-              boxShadow: `0 24px 60px -15px rgba(0, 0, 0, 0.6), 0 0 30px ${selectedTool.brandGlow || "rgba(0,0,0,0.1)"}`,
+              boxShadow: isDark
+                ? `0 24px 60px -15px rgba(0, 0, 0, 0.6), 0 0 30px ${selectedTool.brandGlow || "rgba(0,0,0,0.1)"}`
+                : `0 20px 50px -12px rgba(15, 23, 42, 0.12), 0 8px 24px -4px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.05), 0 12px 28px -8px ${selectedTool.brandGlow || "rgba(0,0,0,0.06)"}`,
             }}
           >
             {/* Ambient Brand Halo */}
@@ -530,7 +541,8 @@ export default function ToolsPage() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

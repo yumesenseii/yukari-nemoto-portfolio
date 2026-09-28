@@ -6,6 +6,30 @@ import { cn } from "@/lib/cn";
 
 export type ChibiVariant = "chatbot" | "peeking" | "sitting" | "badge";
 
+const BODY = {
+  fill: "var(--mascot-body)",
+  stroke: "var(--mascot-rim)",
+  strokeWidth: 1,
+} as const;
+
+const BODY_RIM = {
+  fill: "var(--mascot-body)",
+  stroke: "var(--mascot-rim)",
+} as const;
+
+const BODY_ALT_RIM = {
+  fill: "var(--mascot-body-alt)",
+  stroke: "var(--mascot-rim)",
+} as const;
+
+const EYE_SCLERA = {
+  fill: "#ffffff",
+  stroke: "#0a0d12",
+  strokeWidth: 1.5,
+} as const;
+const EYE_PUPIL = { fill: "#0c1016" } as const;
+const EYE_GLINT = { fill: "#ffffff" } as const;
+
 interface ChibiMascotProps {
   variant?: ChibiVariant;
   className?: string;
@@ -52,10 +76,12 @@ export function ChibiMascot({
     });
 
     // 2. Periodic Natural Blink Loop
+    const leftEye = leftEyeRef.current;
+    const rightEye = rightEyeRef.current;
     let blinkTimer: NodeJS.Timeout;
     const triggerBlink = () => {
-      if (leftEyeRef.current && rightEyeRef.current) {
-        gsap.to([leftEyeRef.current, rightEyeRef.current], {
+      if (leftEye && rightEye) {
+        gsap.to([leftEye, rightEye], {
           scaleY: 0.1,
           duration: 0.1,
           yoyo: true,
@@ -74,6 +100,10 @@ export function ChibiMascot({
     return () => {
       floatAnim.kill();
       clearTimeout(blinkTimer);
+      if (leftEye && rightEye) {
+        gsap.killTweensOf([leftEye, rightEye]);
+        gsap.set([leftEye, rightEye], { scaleY: 1 });
+      }
     };
   }, [variant]);
 
@@ -218,17 +248,17 @@ export function ChibiMascot({
         viewBox="0 0 64 64"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full overflow-visible drop-shadow-[0_4px_12px_rgba(0,0,0,0.35)]"
+        className="chibi-mascot h-full w-full overflow-visible"
       >
         {/* Peeking Ledge paws */}
         {variant === "peeking" && (
           <g className="peeking-paws">
-            <ellipse cx="22" cy="56" rx="5" ry="3.5" className="fill-[#141922] dark:fill-[#0c1016] stroke-white/20 dark:stroke-white/15 stroke-[1]" />
-            <ellipse cx="42" cy="56" rx="5" ry="3.5" className="fill-[#141922] dark:fill-[#0c1016] stroke-white/20 dark:stroke-white/15 stroke-[1]" />
+            <ellipse cx="22" cy="56" rx="5" ry="3.5" style={BODY} />
+            <ellipse cx="42" cy="56" rx="5" ry="3.5" style={BODY} />
           </g>
         )}
 
-        {/* Mascot Body: Cute curved rounded obsidian silhouette with subtle sleek rim stroke */}
+        {/* Mascot Body: Cute curved rounded silhouette with subtle sleek rim stroke */}
         <path
           d={
             variant === "peeking"
@@ -237,18 +267,19 @@ export function ChibiMascot({
                 ? "M16 48 C14 32 18 18 32 18 C46 18 50 32 48 48 C47 54 44 56 32 56 C20 56 17 54 16 48 Z"
                 : "M15 42 C13 26 19 14 32 14 C45 14 51 26 49 42 C48 53 43 56 32 56 C21 56 16 53 15 42 Z"
           }
-          className="fill-[#141922] dark:fill-[#0c1016] stroke-black/40 dark:stroke-white/25 stroke-[1.25]"
+          strokeWidth="1.25"
+          style={BODY_RIM}
         />
 
         {/* Small ears / silhouette nubs for added charm */}
-        <circle cx="21" cy="18" r="4.5" className="fill-[#141922] dark:fill-[#0c1016] stroke-black/30 dark:stroke-white/20 stroke-[1]" />
-        <circle cx="43" cy="18" r="4.5" className="fill-[#141922] dark:fill-[#0c1016] stroke-black/30 dark:stroke-white/20 stroke-[1]" />
+        <circle cx="21" cy="18" r="4.5" style={BODY} />
+        <circle cx="43" cy="18" r="4.5" style={BODY} />
 
         {/* Mascot Feet (Non-peeking variants) */}
         {variant !== "peeking" && (
           <g className="mascot-feet">
-            <ellipse cx="24" cy="57" rx="4.5" ry="2.5" className="fill-[#0e1218] dark:fill-[#080b0f] stroke-black/30 dark:stroke-white/15 stroke-[0.8]" />
-            <ellipse cx="40" cy="57" rx="4.5" ry="2.5" className="fill-[#0e1218] dark:fill-[#080b0f] stroke-black/30 dark:stroke-white/15 stroke-[0.8]" />
+            <ellipse cx="24" cy="57" rx="4.5" ry="2.5" style={BODY_ALT_RIM} strokeWidth="0.8" />
+            <ellipse cx="40" cy="57" rx="4.5" ry="2.5" style={BODY_ALT_RIM} strokeWidth="0.8" />
           </g>
         )}
 
@@ -259,52 +290,36 @@ export function ChibiMascot({
             d="M48 38 C53 35 56 31 54 28 C52 26 49 29 46 33"
             strokeWidth="3.2"
             strokeLinecap="round"
-            className="stroke-[#141922] dark:stroke-[#0c1016]"
+            style={{ stroke: "var(--mascot-body)" }}
           />
         )}
 
-        {/* Eyes: Expressive Clean White Sclera with dark pupils */}
+        {/* Eyes: Expressive clean sclera with contrasting pupils */}
         <g id="eyes-group">
           {/* Left Eye */}
-          <g ref={leftEyeRef} className="left-eye">
-            <ellipse
-              cx="25.5"
-              cy="34"
-              rx="4.8"
-              ry="5.8"
-              className="fill-white"
-            />
+          <g
+            ref={leftEyeRef}
+            className="left-eye"
+            style={{ transformBox: "fill-box", transformOrigin: "center" }}
+          >
+            <circle cx="25.5" cy="33.5" r="5.5" style={EYE_SCLERA} />
             {/* Pupil */}
-            <circle
-              ref={leftPupilRef}
-              cx="26"
-              cy="34"
-              r="2.8"
-              className="fill-[#0c1016]"
-            />
+            <circle ref={leftPupilRef} cx="26" cy="33.5" r="2.5" style={EYE_PUPIL} />
             {/* Eye Highlight Glint */}
-            <circle cx="24.8" cy="32.5" r="1.1" className="fill-white" />
+            <circle cx="25.3" cy="32.4" r="1" style={EYE_GLINT} />
           </g>
 
           {/* Right Eye */}
-          <g ref={rightEyeRef} className="right-eye">
-            <ellipse
-              cx="38.5"
-              cy="34"
-              rx="4.8"
-              ry="5.8"
-              className="fill-white"
-            />
+          <g
+            ref={rightEyeRef}
+            className="right-eye"
+            style={{ transformBox: "fill-box", transformOrigin: "center" }}
+          >
+            <circle cx="38.5" cy="33.5" r="5.5" style={EYE_SCLERA} />
             {/* Pupil */}
-            <circle
-              ref={rightPupilRef}
-              cx="38"
-              cy="34"
-              r="2.8"
-              className="fill-[#0c1016]"
-            />
+            <circle ref={rightPupilRef} cx="38" cy="33.5" r="2.5" style={EYE_PUPIL} />
             {/* Eye Highlight Glint */}
-            <circle cx="36.8" cy="32.5" r="1.1" className="fill-white" />
+            <circle cx="37.8" cy="32.4" r="1" style={EYE_GLINT} />
           </g>
         </g>
 
@@ -314,11 +329,10 @@ export function ChibiMascot({
 
         {/* Minimal Subtle Mouth (Cute smile) */}
         <path
-          d="M30 40 Q32 42 34 40"
-          stroke="rgba(255, 255, 255, 0.75)"
+          d="M30 41 Q32 43 34 41"
           strokeWidth="1.2"
           strokeLinecap="round"
-          className="dark:stroke-white/80 stroke-white/90"
+          style={{ stroke: "var(--mascot-mouth)" }}
         />
       </svg>
 

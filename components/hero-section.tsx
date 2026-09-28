@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -11,6 +10,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Magnetic } from "@/components/magnetic-button";
+import { ThemedPortrait } from "@/components/themed-portrait";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -277,13 +277,11 @@ export function HeroSection() {
             transform: `translate3d(${mousePos.x * 8}px, ${mousePos.y * 8}px, 0)`,
           }}
         >
-          <Image
-            src="/yukari-portrait.jpg"
+          <ThemedPortrait
             alt="Yukari Nemoto — Formal Portrait"
-            width={480}
-            height={640}
+            sizes="(max-width: 640px) 210px, 245px"
             priority
-            className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
+            imgClassName="group-hover:scale-105"
           />
 
         </div>

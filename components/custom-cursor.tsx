@@ -28,18 +28,18 @@ export function CustomCursor() {
       xTo(e.clientX);
       yTo(e.clientY);
 
-      // Detect cursor targets
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
+      // Detect cursor targets (e.target can be a Text node — guard it)
+      const el = e.target instanceof Element ? e.target : null;
+      if (!el) return;
 
-      const cursorTarget = target.closest("[data-cursor]") as HTMLElement | null;
+      const cursorTarget = el.closest("[data-cursor]") as HTMLElement | null;
       if (cursorTarget) {
         const type = cursorTarget.getAttribute("data-cursor") as "drag" | "play";
         setCursorType(type || "hover");
         return;
       }
 
-      const isInteractive = target.closest("a, button, [role='button'], input, textarea, select");
+      const isInteractive = el.closest("a, button, [role='button'], input, textarea, select");
       if (isInteractive) {
         setCursorType("hover");
       } else {

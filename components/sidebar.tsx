@@ -40,6 +40,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const sidebarRef = useRef<HTMLElement>(null);
   const toggleBtnRef = useRef<HTMLButtonElement>(null);
   const toggleIconRef = useRef<HTMLSpanElement>(null);
+  const didInitWidthRef = useRef(false);
 
   // Initial clean sidebar entrance
   useGSAP(
@@ -57,17 +58,23 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
     { scope: sidebarRef },
   );
 
-  // Animate sidebar width with GSAP on desktop
+  // Animate sidebar width with GSAP on desktop.
+  // First mount: set instantly since collapsed is already restored synchronously.
   useEffect(() => {
     if (typeof window === "undefined" || window.innerWidth < 1024) return;
     const targetWidth = collapsed ? 72 : 260;
 
     if (sidebarRef.current) {
-      gsap.to(sidebarRef.current, {
-        width: targetWidth,
-        duration: 0.5,
-        ease: "power3.inOut",
-      });
+      if (!didInitWidthRef.current) {
+        gsap.set(sidebarRef.current, { width: targetWidth });
+        didInitWidthRef.current = true;
+      } else {
+        gsap.to(sidebarRef.current, {
+          width: targetWidth,
+          duration: 0.5,
+          ease: "power3.inOut",
+        });
+      }
     }
 
     if (toggleIconRef.current) {
@@ -115,6 +122,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
 
       <aside
         ref={sidebarRef}
+        data-sidebar-panel
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-line bg-sidebar/90 backdrop-blur-md transition-transform duration-200 overflow-hidden",
           collapsed ? "lg:w-[72px] lg:px-2.5" : "lg:w-[260px] lg:px-5",

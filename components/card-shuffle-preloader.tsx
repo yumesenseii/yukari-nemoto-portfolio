@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
+import {
+  PORTRAIT_LIGHT_SRC,
+  ThemedPortrait,
+} from "@/components/themed-portrait";
 
 export interface CardItem {
   id: string;
@@ -45,7 +49,7 @@ const DEFAULT_CARDS: CardItem[] = [
     id: "card-5",
     title: "Yukari Tenshi Nemoto",
     category: "IT & Business Analytics",
-    image: "/yukari-portrait.jpg",
+    image: PORTRAIT_LIGHT_SRC,
     accent: "#3b82f6",
   },
 ];
@@ -304,7 +308,16 @@ export function CardShufflePreloader({
                 }}
               >
                 {/* Card Thumbnail */}
-                {card.image ? (
+                {card.id === "card-5" ? (
+                  <div className="relative h-full w-full">
+                    <ThemedPortrait
+                      alt={card.title}
+                      sizes="220px"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  </div>
+                ) : card.image ? (
                   <div className="relative h-full w-full">
                     <Image
                       src={card.image}

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ThemedPortrait } from "@/components/themed-portrait";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -475,13 +475,11 @@ export default function AboutPage() {
               ref={portraitRef}
               className="hero-portrait-card group relative z-10 aspect-[3/4] w-[220px] sm:w-[260px] overflow-hidden rounded-2xl sm:rounded-3xl border border-line/90 bg-sidebar shadow-2xl backdrop-blur-md transition-shadow duration-300 hover:shadow-blue/15 dark:border-line"
             >
-              <Image
-                src="/yukari-portrait.jpg"
+              <ThemedPortrait
                 alt="Yukari Nemoto"
-                width={520}
-                height={690}
+                sizes="(max-width: 640px) 220px, 260px"
                 priority
-                className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                imgClassName="group-hover:scale-105"
               />
 
               {/* Ambient Specular Glass Bottom Overlay */}
@@ -698,7 +696,7 @@ export default function AboutPage() {
                 Colegio de Sta. Monica de Angat
               </h4>
               <p className="text-xs sm:text-sm text-muted">
-                Junior &amp; Senior High School · Formative academic training in computer fundamentals, mathematics, and digital media production.
+                Junior &amp; Senior High School (HUMSS) · Formative academic training integrating philosophy, laws, and foundational technology skills.
               </p>
             </div>
 

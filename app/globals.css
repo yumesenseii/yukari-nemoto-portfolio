@@ -107,8 +107,59 @@ aside.bg-sidebar {
   background-position: 0 0;
 }
 
+/* ==========================================================================
+   CHIBI MASCOT — THEME CONTRAST
+   Light theme: dark mascot on the light canvas.
+   Dark theme: light mascot so it stays visible against the black canvas.
+   Colors are CSS vars driven by html[data-theme], so switching themes
+   crossfades via the `fill`/`stroke` transition below (no JS, no hydration).
+   ========================================================================== */
+.chibi-mascot {
+  --mascot-body: #141922;
+  --mascot-body-alt: #0e1218;
+  --mascot-rim: rgba(0, 0, 0, 0.4);
+  --mascot-mouth: rgba(255, 255, 255, 0.85);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+}
+
+[data-theme="dark"] .chibi-mascot {
+  --mascot-body: #f2efe8;
+  --mascot-body-alt: #ded7ca;
+  --mascot-rim: rgba(10, 13, 18, 0.25);
+  --mascot-mouth: rgba(10, 13, 18, 0.8);
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6));
+}
+
+.chibi-mascot * {
+  transition:
+    fill 500ms ease-out,
+    stroke 500ms ease-out;
+}
+
 body {
   font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   SIDEBAR PERSISTENCE — pre-hydration visual guard
+   The sidebarBoot script in layout.tsx sets html[data-sidebar] before paint.
+   These rules apply the saved width/padding instantly, so React can safely
+   hydrate with the default (expanded) HTML and then sync state post-hydration
+   without a hydration mismatch or a visible flash.
+   ========================================================================== */
+@media (min-width: 1024px) {
+  html[data-sidebar="collapsed"] aside[data-sidebar-panel] {
+    width: 72px !important;
+  }
+  html[data-sidebar="expanded"] aside[data-sidebar-panel] {
+    width: 260px !important;
+  }
+  html[data-sidebar="collapsed"] div[data-main-wrapper] {
+    padding-left: 72px !important;
+  }
+  html[data-sidebar="expanded"] div[data-main-wrapper] {
+    padding-left: 260px !important;
+  }
 }
 
 ::selection {

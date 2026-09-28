@@ -117,10 +117,10 @@ export const education: EducationItem[] = [
       {
         title: "Systems Analysis & Software Dev",
         description:
-          "Engineering full-stack web platforms, modern UI/UX design systems, and secure data handling architectures.",
+          "Engineering end-to-end web platforms, modern UI/UX design systems, and secure data handling architectures.",
         topics: [
           "Systems Analysis & Design (SAD)",
-          "Full-Stack Web (React & Next.js)",
+          "Modern Web Engineering (React & Next.js)",
           "Information Assurance & Security",
           "Human-Centered UI/UX Engineering",
         ],
@@ -135,7 +135,7 @@ export const education: EducationItem[] = [
       },
       {
         name: "Gray Cafe Web System",
-        role: "Full-Stack Web Developer",
+        role: "Lead Web Developer",
         context: "Dynamic coffee shop catalog and ordering system (IT211 - Web Systems & Tech)",
       },
       {
@@ -145,12 +145,12 @@ export const education: EducationItem[] = [
       },
       {
         name: "Teacher Anne Playschool Portal",
-        role: "Full-Stack Web Developer",
+        role: "Lead Web Developer",
         context: "Digital student enrollment and parent-teacher communication portal",
       },
     ],
     highlights: [
-      "Lead Capstone Systems Designer & Full-Stack Modeler",
+      "Lead Capstone Systems Designer & Web Architect",
       "Active Member of BulSU IT Society & Academic Analytics Circle",
       "Consistent Academic Standing across Advanced Computing & Analytics Subjects",
     ],
@@ -160,16 +160,16 @@ export const education: EducationItem[] = [
     campus: "Angat Campus",
     years: "2017 — 2022",
     level: "Junior & Senior High School",
-    degree: "Secondary Education · TVL / Academic Foundation",
+    degree: "Secondary Education · Humanities and Social Sciences (HUMSS)",
     standing: "Completed with Academic Honors",
     statusBadge: "Graduated with Honors",
     location: "Angat, Bulacan, Philippines",
     summary:
-      "Formative academic training in computer fundamentals, logical reasoning, mathematics, and multimedia production that fostered a strong technical discipline.",
+      "Formative academic training under the HUMSS strand, integrating the study of philosophy and laws with foundational technology skills.",
     highlights: [
       "Graduated with Academic Honors Distinction",
-      "Led digital media production and publication layout workflows",
-      "Solidified foundations in algorithms, hardware architectures, and creative design",
+      "Explored the intersection of humanities, social sciences, and technology",
+      "Built a strong foundation in philosophy, laws, and analytical reasoning",
     ],
   },
 ];
@@ -381,7 +381,7 @@ export const tools: ToolItem[] = [
     desc: "Primary development workspace, extension ecosystem, and integrated Git source control.",
     logo: "vscode",
     usedFor: [
-      "Full-Stack TypeScript Engineering",
+      "End-to-End TypeScript Engineering",
       "ESLint & Prettier Tooling",
       "Git Source Control & Branching",
       "Next.js & React Debugging",
@@ -403,7 +403,7 @@ export const tools: ToolItem[] = [
     id: "nextjs",
     name: "Next.js",
     group: "Systems & Web Development",
-    category: "Full-Stack Web Framework",
+    category: "Modern Web Framework",
     filterCategories: ["All", "Frontend"],
     brandColor: "#ffffff",
     brandGlow: "rgba(255, 255, 255, 0.15)",
@@ -419,7 +419,7 @@ export const tools: ToolItem[] = [
       {
         title: "Teacher Anne",
         slug: "teacher-anne",
-        role: "Full-Stack App Architecture",
+        role: "Web App Architecture",
       },
       {
         title: "CNHS LEARN",
@@ -710,7 +710,7 @@ export const projects: ProjectItem[] = [
     title: "Teacher Anne",
     fullTitle: "Teacher Anne — School Management System & Centralized Enrollment",
     subtitle: "School Administration, QR Attendance, GCash Verification & Student Records",
-    meta: "2025–2026 · SCHOOL MANAGEMENT SYSTEM · FULL-STACK WEB",
+    meta: "2025–2026 · SCHOOL MANAGEMENT SYSTEM · WEB APPLICATION",
     year: "2026",
     category: "School Management System",
     filterCategories: ["All", "Web", "Systems", "Client"],
@@ -718,9 +718,9 @@ export const projects: ProjectItem[] = [
       "Teacher Anne is a school management system designed to streamline enrollment and centralize student records, attendance, payments, teacher management, announcements, and reporting in one platform for efficient school administration.",
     oneLiner:
       "School management system designed to streamline enrollment, student records, QR attendance, and GCash payments.",
-    did: "Architected full-stack portal with Next.js & Supabase, integrated QR code attendance scanning, automated GCash payment proof verification with Supabase Storage, and configured Brevo transactional emails.",
-    role: "Full-Stack Developer & UI/UX Designer",
-    projectType: "Full-Stack Web Application · Client Platform",
+    did: "Architected modern portal with Next.js & Supabase, integrated QR code attendance scanning, automated GCash payment proof verification with Supabase Storage, and configured Brevo transactional emails.",
+    role: "Lead Developer & UI/UX Designer",
+    projectType: "Modern Web Application · Client Platform",
     client: "Teacher Anne Playschool and Tutorial Center",
     team: "Lead Developer & UI/UX Designer",
     tags: [
@@ -847,8 +847,8 @@ export const projects: ProjectItem[] = [
       "Comprehensive school management and learning system integrating student performance analytics, grade tracking, and predictive academic intelligence.",
     oneLiner:
       "Comprehensive school management and learning system integrating student performance analytics.",
-    did: "Architected full-stack web application features, database schemas, and data analytics pipelines for school administration.",
-    role: "Full-Stack Developer & Analyst",
+    did: "Architected web application features, database schemas, and data analytics pipelines for school administration.",
+    role: "Lead Developer & Analyst",
     projectType: "School System & Web Application",
     tags: ["School Data System", "Data Analytics", "Machine Learning"],
     toolsList: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MySQL", "Machine Learning"],
@@ -933,14 +933,14 @@ export const projects: ProjectItem[] = [
     subtitle: "Web Systems & Technologies (IT211) Final Academic Project",
     meta: "2024 · WEB SYSTEMS & TECHNOLOGIES · HTML / CSS / JS / PHP / MYSQL",
     year: "2024",
-    category: "Full-Stack Web System",
+    category: "Web System",
     filterCategories: ["All", "Web", "Systems", "Academic"],
     description:
-      "A dynamic, full-stack coffee shop ordering and menu management web application engineered as the final project for Web Systems and Technologies (IT211). Features interactive beverage catalogs, cart handling, and backend database administration using PHP, MySQL (phpMyAdmin), and XAMPP.",
+      "A dynamic coffee shop ordering and menu management web application engineered as the final project for Web Systems and Technologies (IT211). Features interactive beverage catalogs, cart handling, and backend database administration using PHP, MySQL (phpMyAdmin), and XAMPP.",
     oneLiner:
       "Dynamic coffee shop web application with interactive menus, order handling, and MySQL database management.",
     did: "Engineered the full frontend interface using semantic HTML, custom CSS, and JavaScript, paired with a PHP backend and relational MySQL database managed via phpMyAdmin on XAMPP.",
-    role: "Full-Stack Web Developer & UI Designer",
+    role: "Lead Web Developer & UI Designer",
     projectType: "Academic Final Project · Web Systems & Technologies (IT211)",
     subject: "Web Systems and Technologies (IT211)",
     tags: [
@@ -953,7 +953,7 @@ export const projects: ProjectItem[] = [
       "MySQL",
       "phpMyAdmin",
       "XAMPP",
-      "Full-Stack",
+      "Web Development",
     ],
     toolsList: [
       "HTML5",
@@ -978,7 +978,7 @@ export const projects: ProjectItem[] = [
       "XAMPP Local Server Architecture: Configured local Apache server and MySQL service environment for rapid development, testing, and demonstration.",
     ],
     result:
-      "Successfully designed, built, and presented an end-to-end full-stack web application for the IT211 final requirement, achieving high academic marks and demonstrating proficiency in foundational web architectures.",
+      "Successfully designed, built, and presented an end-to-end web application for the IT211 final requirement, achieving high academic marks and demonstrating proficiency in foundational web architectures.",
     visual: "merch" as const,
     demoUrl: "",
   },

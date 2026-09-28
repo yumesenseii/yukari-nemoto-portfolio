@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import {
   ArrowUpRight,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { FigmaLogo } from "@/components/brand-icons";
 import { ProjectMedia } from "@/components/project-media";
+import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/cn";
 import { defaultProjectTheme, ProjectItem, projectThemes } from "@/lib/data";
 
@@ -22,6 +24,13 @@ interface ProjectModalProps {
 
 export function ProjectModal({ project, onClose }: ProjectModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const themeContext = useTheme();
+  const isDark = themeContext?.theme === "dark";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Lock body scroll and handle Escape key
   useEffect(() => {
@@ -44,28 +53,30 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
     };
   }, [project, onClose]);
 
-  if (!project) return null;
+  if (!project || !mounted) return null;
 
   const theme = projectThemes[project.slug] || defaultProjectTheme;
   const hasImages = project.images && project.images.length > 0;
   const hasVideo = Boolean(project.videoUrl);
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-project-title"
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-black/80 backdrop-blur-md transition-all duration-200 animate-in fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-black/35 backdrop-blur-sm dark:bg-black/75 dark:backdrop-blur-md transition-all duration-200 animate-in fade-in"
       onClick={onClose}
     >
       {/* Modal Container — Compact & Non-Stretchable */}
       <div
         className={cn(
-          "relative flex w-full max-w-4xl lg:max-w-5xl flex-col rounded-3xl border bg-card shadow-2xl transition-all duration-300 animate-in zoom-in-95 overflow-hidden",
+          "relative flex w-full max-w-4xl lg:max-w-5xl flex-col rounded-3xl border border-line/80 bg-card shadow-2xl transition-all duration-300 animate-in zoom-in-95 overflow-hidden dark:border-white/10",
           theme.activeBorder,
         )}
         style={{
-          boxShadow: `0 25px 60px -15px ${theme.glowColor}, 0 0 40px rgba(0,0,0,0.5)`,
+          boxShadow: isDark
+            ? `0 25px 60px -15px ${theme.glowColor}, 0 0 45px rgba(0,0,0,0.6)`
+            : `0 24px 50px -12px rgba(15, 23, 42, 0.14), 0 8px 24px -4px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.05), 0 16px 36px -10px ${theme.glowColor}`,
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -344,6 +355,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

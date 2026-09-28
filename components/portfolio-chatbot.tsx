@@ -236,7 +236,7 @@ export function PortfolioChatbot() {
       return {
         id,
         sender: "bot",
-        text: `Yukari has built 6 comprehensive client and academic projects! Here are the highlights:\n\n• 🏫 Teacher Anne — Full-stack school management system with Next.js, Supabase, QR attendance, and GCash verification.\n• ☕ Gray Cafe — Interactive coffee shop & ordering web system (IT211) using HTML, CSS, JS, PHP, MySQL, and XAMPP.\n• 📊 Power BI Data Analytics — Interactive dashboards with DAX measures and star-schema models.\n• 📈 Power BI Executive Dashboard — Strategic KPI benchmarking scorecard.\n• 🎓 CNHS LEARN — School academic portal and student performance analytics system.\n• 🍹 Ayumi Rich Merchandise — Beverage wholesale ordering & payment management system prototype designed in Figma.\n\nWhich one would you like to see?`,
+        text: `Yukari has built 6 comprehensive client and academic projects! Here are the highlights:\n\n• 🏫 Teacher Anne — Comprehensive school management system with Next.js, Supabase, QR attendance, and GCash verification.\n• ☕ Gray Cafe — Interactive coffee shop & ordering web system (IT211) using HTML, CSS, JS, PHP, MySQL, and XAMPP.\n• 📊 Power BI Data Analytics — Interactive dashboards with DAX measures and star-schema models.\n• 📈 Power BI Executive Dashboard — Strategic KPI benchmarking scorecard.\n• 🎓 CNHS LEARN — School academic portal and student performance analytics system.\n• 🍹 Ayumi Rich Merchandise — Beverage wholesale ordering & payment management system prototype designed in Figma.\n\nWhich one would you like to see?`,
         action: {
           label: "View All Projects",
           href: "/projects",

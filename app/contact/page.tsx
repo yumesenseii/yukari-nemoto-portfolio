@@ -27,7 +27,7 @@ export default function ContactPage() {
 
   const collaborationAvenues = [
     {
-      title: "Web & Full-Stack Systems",
+      title: "Web & Application Systems",
       desc: "Custom web applications, relational database schemas, and clean responsive interfaces.",
       skills: ["Next.js", "TypeScript", "SQL/PostgreSQL"],
     },
