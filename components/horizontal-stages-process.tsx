@@ -249,8 +249,21 @@ export function HorizontalStagesProcess() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeStageIndex, setActiveStageIndex] = useState(0);
+  // Pinned scrub is desktop-only (pointer:fine + lg). On touch/small screens
+  // the track becomes a native snap-scroll row to avoid pin jank.
+  const [pinEnabled, setPinEnabled] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 1024px) and (pointer: fine)");
+    const sync = () => setPinEnabled(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!pinEnabled) return;
     const section = sectionRef.current;
     const track = trackRef.current;
     const container = containerRef.current;
@@ -293,10 +306,40 @@ export function HorizontalStagesProcess() {
     return () => {
       ctx.revert();
     };
-  }, []);
+  }, [pinEnabled]);
+
+  // Native horizontal scroll progress for the mobile snap-track fallback
+  const handleTrackScroll = () => {
+    const container = containerRef.current;
+    if (!container || pinEnabled) return;
+    const max = container.scrollWidth - container.clientWidth;
+    const p = max > 0 ? container.scrollLeft / max : 0;
+    setScrollProgress(p);
+    setActiveStageIndex(
+      Math.min(
+        stagesData.length - 1,
+        Math.max(0, Math.round(p * (stagesData.length - 1))),
+      ),
+    );
+  };
 
   // Programmatic scroll to a specific stage index (syncs with ScrollTrigger)
   const scrollToStage = (index: number) => {
+    // Mobile fallback: scroll the snap-track row directly
+    if (!pinEnabled && typeof window !== "undefined") {
+      const container = containerRef.current;
+      const track = trackRef.current;
+      if (container && track) {
+        const card = track.children[index] as HTMLElement | undefined;
+        if (card) {
+          container.scrollTo({
+            left: card.offsetLeft - 4,
+            behavior: "smooth",
+          });
+          return;
+        }
+      }
+    }
     const st = ScrollTrigger.getById("stages-scroll-trigger");
     if (st && typeof window !== "undefined") {
       const progress = index / (stagesData.length - 1);
@@ -365,7 +408,7 @@ export function HorizontalStagesProcess() {
               <div className="flex items-center justify-between border-t border-line/60 pt-4">
                 <span className="text-[11px] text-muted flex items-center gap-1.5">
                   <Compass className="size-3 text-muted/70" />
-                  <span>Scroll up/down to browse stages</span>
+                  <span>Swipe or scroll to browse stages</span>
                 </span>
 
                 <div className="flex items-center gap-1.5">
@@ -393,7 +436,16 @@ export function HorizontalStagesProcess() {
           </div>
 
           {/* RIGHT HORIZONTAL TRACK: 5 Cards with Visual Plates (lg:col-span-8) */}
-          <div ref={containerRef} className="lg:col-span-8 w-full overflow-hidden">
+          <div
+            ref={containerRef}
+            onScroll={handleTrackScroll}
+            className={cn(
+              "lg:col-span-8 w-full",
+              pinEnabled
+                ? "overflow-hidden"
+                : "overflow-x-auto no-scrollbar snap-track pb-2 -mx-1 px-1",
+            )}
+          >
             <div
               ref={trackRef}
               className="flex gap-5 sm:gap-6 pb-4 pt-1 will-change-transform"

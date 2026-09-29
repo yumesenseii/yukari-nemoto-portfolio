@@ -5,11 +5,9 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { usePathname } from "next/navigation";
-import { gsap } from "gsap";
 import { CardShufflePreloader } from "@/components/card-shuffle-preloader";
 import { CustomCursor } from "@/components/custom-cursor";
 import { DotGridBackground } from "@/components/dot-grid-background";
@@ -40,9 +38,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // by CSS in globals.css driven by html[data-sidebar].
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const mainWrapperRef = useRef<HTMLDivElement>(null);
-  const initialAnimateRef = useRef(false);
   const pathname = usePathname();
 
   // Post-hydration only: restore preference without hydration mismatch.
@@ -58,17 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCollapsed(next);
-    try {
-      const mq = window.matchMedia("(min-width: 1024px)");
-      setIsDesktop(mq.matches);
-      const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-      mq.addEventListener("change", onChange);
-      setMounted(true);
-      return () => mq.removeEventListener("change", onChange);
-    } catch {
-      setIsDesktop(false);
-      setMounted(true);
-    }
+    setMounted(true);
   }, []);
 
   // Persist every change (pure updater friendly, survives StrictMode double-invoke)
@@ -103,30 +88,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleCollapsed]);
 
-  // Animate main container padding-left when sidebar collapses on desktop.
-  // First mount: set instantly (no flash animation) since CSS already shows
-  // the correct width pre-hydration.
+  // Notify width-dependent children (e.g. carousels) after the 500ms
+  // CSS padding transition finishes so they can re-measure.
   useEffect(() => {
-    if (!mounted || !isDesktop) return;
-    const targetPl = collapsed ? 72 : 260;
-
-    if (mainWrapperRef.current) {
-      if (!initialAnimateRef.current) {
-        gsap.set(mainWrapperRef.current, { paddingLeft: targetPl });
-        initialAnimateRef.current = true;
-        return;
-      }
-      gsap.to(mainWrapperRef.current, {
-        paddingLeft: targetPl,
-        duration: 0.5,
-        ease: "power3.inOut",
-        onComplete: () => {
-          // Notify child components (like carousel) to recalculate layout widths
-          window.dispatchEvent(new Event("resize"));
-        },
-      });
-    }
-  }, [collapsed, mounted, isDesktop]);
+    if (!mounted) return;
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 520);
+    return () => clearTimeout(timer);
+  }, [collapsed, mounted]);
 
   return (
     <SidebarContext.Provider value={{ collapsed, toggleCollapsed }}>
@@ -139,17 +109,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
         <div
-          ref={mainWrapperRef}
           data-main-wrapper
-          className="relative flex min-h-dvh flex-col transition-none"
-          style={{
-            paddingLeft: mounted && isDesktop ? (collapsed ? 72 : 260) : undefined,
-          }}
+          className={cn(
+            "relative flex min-h-dvh flex-col overflow-x-clip transition-[padding] duration-500 ease-in-out",
+            collapsed ? "lg:pl-[72px]" : "lg:pl-[260px]",
+          )}
         >
           <TopBar onOpenMobile={() => setMobileOpen(true)} />
           <main
             className={cn(
-              "relative z-10 mx-auto w-full flex-1 px-4 py-8 sm:px-8 lg:px-12 lg:py-10 transition-all duration-300",
+              "safe-pb relative z-10 mx-auto w-full flex-1 px-4 py-8 sm:px-8 lg:px-12 lg:py-10 transition-all duration-300",
               collapsed ? "max-w-[1400px]" : "max-w-[1200px]",
             )}
           >
@@ -158,8 +127,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </main>
         </div>
 
-        {/* Chibi Mascot & Chatbot Assistant */}
-        <PortfolioChatbot />
+        {/* Chibi Mascot & Chatbot Assistant — yields to the mobile drawer
+            so the bubble/mascot never overlaps the open menu */}
+        <div
+          className={cn(
+            "transition-opacity duration-200",
+            mobileOpen && "max-lg:pointer-events-none max-lg:opacity-0",
+          )}
+        >
+          <PortfolioChatbot />
+        </div>
       </div>
     </SidebarContext.Provider>
   );

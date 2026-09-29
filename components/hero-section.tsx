@@ -170,7 +170,7 @@ export function HeroSection() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12 pt-2 pb-12 sm:pb-16"
+      className="relative grid grid-cols-1 items-center gap-10 overflow-clip lg:grid-cols-12 lg:gap-12 pt-2 pb-12 sm:pb-16"
     >
       {/* LEFT COLUMN: Hero Copy & Actions */}
       <div className="flex flex-col lg:col-span-7">
@@ -179,7 +179,7 @@ export function HeroSection() {
           <span>WELCOME TO MY PORTFOLIO</span>
         </div>
 
-        <h2 className="mt-5 flex flex-col font-display text-3xl sm:text-5xl lg:text-[52px] font-bold leading-[0.95] tracking-tight text-ink">
+        <h2 className="mt-5 flex flex-col font-display text-[clamp(2rem,8vw,3rem)] sm:text-5xl lg:text-[52px] font-bold leading-[0.95] tracking-tight text-ink text-balance">
           <span>Yukari Tenshi</span>
           <span>Nemoto</span>
         </h2>
@@ -196,7 +196,7 @@ export function HeroSection() {
             <Magnetic strength={6}>
               <a
                 href="#featured-projects"
-                className="group flex cursor-pointer items-center gap-2 rounded-xl bg-ink px-5 py-3 text-xs sm:text-sm font-semibold text-sidebar shadow-sm transition-all duration-200 hover:opacity-95 active:scale-[0.98] dark:bg-[#f5f2eb] dark:text-[#0a0d12]"
+                className="group flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl bg-ink px-5 py-3 text-xs sm:text-sm font-semibold text-sidebar shadow-sm transition-all duration-200 hover:opacity-95 active:scale-[0.98] dark:bg-[#f5f2eb] dark:text-[#0a0d12]"
               >
                 <span>VIEW MY WORK</span>
                 <ArrowRight
@@ -211,7 +211,7 @@ export function HeroSection() {
             <Magnetic strength={6}>
               <Link
                 href="/contact"
-                className="flex cursor-pointer items-center justify-center rounded-xl border border-line bg-tile/40 px-5 py-3 text-xs sm:text-sm font-semibold text-ink transition-all duration-200 hover:border-brown hover:bg-tile active:scale-[0.98]"
+                className="flex min-h-[44px] cursor-pointer items-center justify-center rounded-xl border border-line bg-tile/40 px-5 py-3 text-xs sm:text-sm font-semibold text-ink transition-all duration-200 hover:border-brown hover:bg-tile active:scale-[0.98]"
               >
                 LET&apos;S WORK TOGETHER
               </Link>
@@ -227,7 +227,7 @@ export function HeroSection() {
                 rel="noopener noreferrer"
                 onMouseEnter={handleResumeEnter}
                 onMouseLeave={handleResumeLeave}
-                className="group flex cursor-pointer items-center gap-2 rounded-xl border border-line/80 bg-tile/20 px-4 sm:px-5 py-3 text-xs sm:text-sm font-semibold text-muted transition-colors duration-200 hover:border-blue/50 hover:text-ink active:scale-[0.98]"
+                className="group flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-line/80 bg-tile/20 px-4 sm:px-5 py-3 text-xs sm:text-sm font-semibold text-muted transition-colors duration-200 hover:border-blue/50 hover:text-ink active:scale-[0.98]"
                 aria-label="View Resume (opens in a new tab)"
               >
                 <span>RESUME</span>
@@ -279,7 +279,7 @@ export function HeroSection() {
         >
           <ThemedPortrait
             alt="Yukari Nemoto — Formal Portrait"
-            sizes="(max-width: 640px) 210px, 245px"
+            sizes="(max-width: 640px) 62vw, 245px"
             priority
             imgClassName="group-hover:scale-105"
           />

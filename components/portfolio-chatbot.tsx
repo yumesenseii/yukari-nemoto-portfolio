@@ -357,12 +357,12 @@ export function PortfolioChatbot() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end">
+    <div className="safe-pb fixed inset-x-3 bottom-3 z-50 flex flex-col items-end sm:inset-x-auto sm:bottom-6 sm:right-6">
       {/* 1. CHATBOT PANEL */}
       {isOpen && (
         <div
           ref={panelRef}
-          className="mb-3.5 flex flex-col w-[320px] sm:w-[380px] h-[500px] max-h-[82vh] overflow-hidden rounded-2xl border border-line/80 bg-card/95 dark:bg-[#0a0a0a]/95 shadow-[0_20px_50px_rgba(0,0,0,0.7)] backdrop-blur-xl ring-1 ring-white/10"
+          className="mb-3.5 flex flex-col w-full sm:w-[380px] h-[78dvh] sm:h-[500px] sm:max-h-[82vh] overflow-hidden rounded-3xl sm:rounded-2xl border border-line/80 bg-card/95 dark:bg-[#0a0a0a]/95 shadow-[0_20px_50px_rgba(0,0,0,0.7)] backdrop-blur-xl ring-1 ring-white/10"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-line px-4 py-3 bg-tile/40">
@@ -386,7 +386,7 @@ export function PortfolioChatbot() {
                 type="button"
                 onClick={handleResetChat}
                 title="Reset conversation"
-                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-tile hover:text-ink"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-tile hover:text-ink sm:size-7"
                 aria-label="Reset chat"
               >
                 <RotateCcw className="size-3.5" />
@@ -395,7 +395,7 @@ export function PortfolioChatbot() {
                 type="button"
                 onClick={handleClose}
                 title="Close chat"
-                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-tile hover:text-ink"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-tile hover:text-ink sm:size-7"
                 aria-label="Close assistant"
               >
                 <X className="size-4" />
@@ -471,7 +471,7 @@ export function PortfolioChatbot() {
                   key={q}
                   type="button"
                   onClick={() => handleSend(q)}
-                  className="shrink-0 cursor-pointer rounded-full border border-line bg-tile/90 px-2.5 py-1 text-[10.5px] font-medium text-muted transition-all hover:border-blue/50 hover:bg-tile hover:text-ink active:scale-95"
+                  className="shrink-0 cursor-pointer rounded-full border border-line bg-tile/90 px-3 py-2 text-xs font-medium text-muted transition-all hover:border-blue/50 hover:bg-tile hover:text-ink active:scale-95 sm:px-2.5 sm:py-1 sm:text-[10.5px]"
                 >
                   {q}
                 </button>
@@ -493,12 +493,14 @@ export function PortfolioChatbot() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Ask about projects, tools, resume..."
-              className="flex-1 rounded-xl border border-line bg-tile/50 px-3 py-2 text-xs text-ink placeholder:text-muted focus:border-blue focus:outline-none"
+              enterKeyHint="send"
+              autoComplete="off"
+              className="min-h-[44px] flex-1 rounded-xl border border-line bg-tile/50 px-3 py-2 text-base text-ink placeholder:text-muted focus:border-blue focus:outline-none sm:text-xs"
             />
             <button
               type="submit"
               disabled={!inputValue.trim()}
-              className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-blue text-white transition-opacity disabled:opacity-35 hover:opacity-95"
+              className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-blue text-white transition-opacity disabled:opacity-35 hover:opacity-95 sm:size-8"
               aria-label="Send message"
             >
               <Send className="size-3.5" />

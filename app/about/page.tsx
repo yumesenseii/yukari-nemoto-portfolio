@@ -477,7 +477,7 @@ export default function AboutPage() {
             >
               <ThemedPortrait
                 alt="Yukari Nemoto"
-                sizes="(max-width: 640px) 220px, 260px"
+                sizes="(max-width: 640px) 62vw, 260px"
                 priority
                 imgClassName="group-hover:scale-105"
               />

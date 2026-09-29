@@ -132,7 +132,7 @@ export function ProjectDetailView({ project, nextProject }: ProjectDetailViewPro
           <span>{project.meta}</span>
         </div>
 
-        <h1 className="mt-4 font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-ink leading-tight overflow-hidden py-1">
+        <h1 className="mt-4 font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-ink leading-tight overflow-hidden py-1 text-balance">
           <span className="detail-title-line block">
             {project.title}
           </span>

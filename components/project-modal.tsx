@@ -58,7 +58,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-project-title"
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-black/35 backdrop-blur-sm dark:bg-black/75 dark:backdrop-blur-md transition-all duration-200 animate-in fade-in"
+      className="fixed inset-0 z-[100] flex items-end justify-center p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:items-center sm:p-5 md:p-8 bg-black/35 backdrop-blur-sm dark:bg-black/75 dark:backdrop-blur-md transition-all duration-200 animate-in fade-in"
       onClick={onClose}
     >
       {/* Modal Container — Compact & Non-Stretchable */}
@@ -79,13 +79,13 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
           type="button"
           onClick={onClose}
           aria-label="Close project modal"
-          className="absolute right-3.5 top-3.5 z-30 flex size-8 cursor-pointer items-center justify-center rounded-full border border-line bg-card/90 text-muted shadow-md backdrop-blur-md transition-all hover:scale-105 hover:border-ink hover:text-ink active:scale-95 sm:right-5 sm:top-5"
+          className="absolute right-3.5 top-3.5 z-30 flex size-11 cursor-pointer items-center justify-center rounded-full border border-line bg-card/90 text-muted shadow-md backdrop-blur-md transition-all hover:scale-105 hover:border-ink hover:text-ink active:scale-95 sm:right-5 sm:top-5 sm:size-8"
         >
           <X className="size-4" strokeWidth={2.2} />
         </button>
 
         {/* Modal Content — Compact, Balanced & Non-Scrollable on Desktop */}
-        <div className="max-h-[90vh] overflow-y-auto lg:overflow-visible p-5 sm:p-6 lg:p-7">
+        <div className="max-h-[86dvh] overflow-y-auto custom-scrollbar lg:overflow-visible p-5 sm:p-6 lg:p-7">
           <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12 lg:gap-8">
             {/* LEFT COLUMN: Visual Media / Interactive Preview (lg:col-span-7) */}
             <div className="space-y-3.5 lg:col-span-7">
@@ -130,7 +130,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                                   : prev - 1,
                               )
                             }
-                            className="flex size-7 cursor-pointer items-center justify-center rounded-lg bg-black/70 text-white backdrop-blur-sm transition-colors hover:bg-black"
+                            className="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-black/70 text-white backdrop-blur-sm transition-colors hover:bg-black sm:size-7"
                             aria-label="Previous image"
                           >
                             <ChevronLeft className="size-3.5" />
@@ -144,7 +144,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                                   : prev + 1,
                               )
                             }
-                            className="flex size-7 cursor-pointer items-center justify-center rounded-lg bg-black/70 text-white backdrop-blur-sm transition-colors hover:bg-black"
+                            className="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-black/70 text-white backdrop-blur-sm transition-colors hover:bg-black sm:size-7"
                             aria-label="Next image"
                           >
                             <ChevronRight className="size-3.5" />

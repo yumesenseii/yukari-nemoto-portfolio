@@ -74,14 +74,14 @@ export function TopBar({ onOpenMobile }: TopBarProps) {
     filteredTools.length > 0;
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-line bg-sidebar/85 px-4 backdrop-blur-md sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-30 flex min-h-16 w-full items-center justify-between gap-2 border-b border-line bg-sidebar/85 px-3 pt-[env(safe-area-inset-top,0px)] backdrop-blur-md sm:px-6 lg:px-8">
       {/* Mobile hamburger & Search bar */}
-      <div className="flex flex-1 items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         {onOpenMobile ? (
           <button
             type="button"
             onClick={onOpenMobile}
-            className="flex size-9 cursor-pointer items-center justify-center rounded-xl border border-line text-ink transition-colors hover:bg-tile lg:hidden"
+            className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line text-ink transition-colors hover:bg-tile lg:hidden"
             aria-label="Open navigation menu"
           >
             <Menu className="size-4" strokeWidth={1.8} />
@@ -100,14 +100,16 @@ export function TopBar({ onOpenMobile }: TopBarProps) {
                 setSearchFocused(true);
               }}
               onFocus={() => setSearchFocused(true)}
-              placeholder="Search projects, technologies, or keywords..."
-              className="h-10 w-full rounded-xl border border-line bg-tile/70 pl-9 pr-14 text-xs text-ink placeholder:text-muted/70 focus:border-blue focus:bg-sidebar focus:outline-hidden transition-all duration-150"
+              placeholder="Search projects, tools..."
+              enterKeyHint="search"
+              autoComplete="off"
+              className="h-11 w-full rounded-xl border border-line bg-tile/70 pl-9 pr-10 text-base text-ink placeholder:text-muted/70 focus:border-blue focus:bg-sidebar focus:outline-hidden transition-all duration-150 sm:h-10 sm:text-xs"
             />
             {query ? (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="absolute right-3 cursor-pointer text-muted hover:text-ink"
+                className="absolute right-1.5 flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted hover:text-ink"
                 aria-label="Clear search"
               >
                 <X className="size-3.5" />
@@ -121,7 +123,7 @@ export function TopBar({ onOpenMobile }: TopBarProps) {
 
           {/* Search Dropdown / Live Results */}
           {searchFocused && q && (
-            <div className="absolute left-0 top-full mt-2 w-full rounded-2xl border border-line bg-card p-3 shadow-xl backdrop-blur-md">
+            <div className="custom-scrollbar absolute left-0 top-full z-50 mt-2 max-h-[60dvh] w-full overflow-y-auto rounded-2xl border border-line bg-card p-3 shadow-xl backdrop-blur-md">
               {hasResults ? (
                 <div className="space-y-3">
                   {filteredProjects.length > 0 && (

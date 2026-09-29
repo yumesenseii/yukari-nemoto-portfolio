@@ -1,0 +1,24 @@
+{
+  "name": "Yukari Tenshi Nemoto — Portfolio",
+  "short_name": "Yukari Nemoto",
+  "description": "Systems, photography, and editing portfolio of Yukari Tenshi Nemoto.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f4ed",
+  "theme_color": "#f7f4ed",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/yukari-portrait-for-light-theme.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

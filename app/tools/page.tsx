@@ -379,7 +379,7 @@ export default function ToolsPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-tool-title"
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-end justify-center p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:items-center sm:p-6 animate-in fade-in duration-200"
         >
           {/* Backdrop with Soft Blur */}
           <div
@@ -390,7 +390,7 @@ export default function ToolsPage() {
 
           {/* Studio Specimen Card */}
           <div
-            className="relative z-10 w-full max-w-lg rounded-3xl border border-line/80 bg-card p-6 sm:p-7 shadow-2xl transition-all overflow-hidden dark:bg-[#0c0e12] dark:border-white/[0.08]"
+            className="relative z-10 w-full max-w-lg max-h-[86dvh] overflow-y-auto custom-scrollbar rounded-3xl border border-line/80 bg-card p-6 sm:p-7 shadow-2xl transition-all overflow-hidden dark:bg-[#0c0e12] dark:border-white/[0.08]"
             style={{
               boxShadow: isDark
                 ? `0 24px 60px -15px rgba(0, 0, 0, 0.6), 0 0 30px ${selectedTool.brandGlow || "rgba(0,0,0,0.1)"}`

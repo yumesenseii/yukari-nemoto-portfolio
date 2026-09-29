@@ -321,3 +321,63 @@ a:active,
   scrollbar-width: thin;
   scrollbar-color: rgba(147, 197, 253, 0.22) transparent;
 }
+
+/* ==========================================================================
+   MOBILE WEB-APP OPTIMIZATIONS
+   ========================================================================== */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 76px;
+}
+
+body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* iOS safe-area helpers (viewport-fit=cover) */
+.safe-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-pt {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Prevent iOS auto-zoom: inputs must be >=16px on small screens */
+@media (max-width: 640px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Cut GPU cost of ambient glows on phones */
+  .blur-3xl {
+    filter: blur(24px);
+  }
+}
+
+/* Native-feel horizontal snap tracks (mobile fallback for pinned GSAP rows) */
+.snap-track {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+.snap-track > * {
+  scroll-snap-align: start;
+}
+
+/* Below-fold cards skip rendering until scrolled into view */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
+}

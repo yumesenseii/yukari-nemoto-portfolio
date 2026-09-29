@@ -444,7 +444,7 @@ export function FeaturedProjectsCarousel() {
       autoPlayTimerRef.current = null;
     }
     autoPlayTimerRef.current = setInterval(() => {
-      if (!isInteractingRef.current) {
+      if (!isInteractingRef.current && !document.hidden) {
         handleNext();
       }
     }, 5500);
@@ -765,7 +765,7 @@ export function FeaturedProjectsCarousel() {
 
       {/* 3D DEPTH STAGE: Interactive Mouse Drag & Touch Flick */}
       <div
-        className="relative mt-4 sm:mt-6 w-full overflow-hidden cursor-grab active:cursor-grabbing"
+        className="relative mt-4 sm:mt-6 w-full overflow-hidden cursor-grab active:cursor-grabbing [touch-action:pan-y]"
         onMouseDown={(e) => handleDragStart(e.clientX)}
         onMouseMove={(e) => handleDragMove(e.clientX)}
         onMouseUp={handleDragEnd}
@@ -808,7 +808,7 @@ export function FeaturedProjectsCarousel() {
                 }}
                 className={cn(
                   "absolute group/card",
-                  "w-[90%] max-w-[340px] sm:max-w-[420px] md:max-w-[460px] lg:max-w-[490px]",
+                  "w-[86vw] max-w-[340px] sm:w-[90%] sm:max-w-[420px] md:max-w-[460px] lg:max-w-[490px]",
                   "rounded-3xl border bg-card transition-shadow duration-300 will-change-transform",
                   isActive
                     ? cn("cursor-pointer ring-1", theme.activeBorder)

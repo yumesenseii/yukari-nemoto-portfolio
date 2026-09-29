@@ -70,7 +70,7 @@ export default function ContactPage() {
                 Open for project work
               </div>
 
-              <h1 className="mt-6 max-w-xl font-display text-4xl font-black leading-[0.92] tracking-[-0.05em] text-ink sm:text-5xl lg:text-[4.2rem]">
+              <h1 className="mt-6 max-w-xl font-display text-[clamp(2.25rem,9vw,3rem)] font-black leading-[0.92] tracking-[-0.05em] text-ink text-balance sm:text-5xl lg:text-[4.2rem]">
                 Build the signal.
                 <span className="mt-2 block text-blue">Ship the system.</span>
               </h1>

@@ -83,6 +83,23 @@ export function CardShufflePreloader({
   useEffect(() => {
     if (isFinished) return;
 
+    // Skip repeat plays within a session + honor reduced-motion on phones
+    try {
+      if (sessionStorage.getItem("portfolio-preloader-seen") === "1") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsFinished(true);
+        return;
+      }
+    } catch {
+      // sessionStorage unavailable — play once as usual
+    }
+
+    const isMobileLoader =
+      typeof window !== "undefined" && window.innerWidth < 640;
+    const effectiveDuration = isMobileLoader
+      ? Math.min(minDuration, 1.2)
+      : minDuration;
+
     const container = containerRef.current;
     const cardNodes = cardElementsRef.current.filter(Boolean) as HTMLDivElement[];
     const counterNode = counterRef.current;
@@ -94,9 +111,11 @@ export function CardShufflePreloader({
     // Lock body scroll while preloader runs
     document.body.style.overflow = "hidden";
 
-    // Base angles for 3D Fan Arc Out
+    // Base angles for 3D Fan Arc Out (narrower on phones to avoid overflow)
     const fanAngles = [-14, -7, 0, 7, 14];
-    const fanXOffsets = [-120, -60, 0, 60, 120];
+    const fanXOffsets = isMobileLoader
+      ? [-64, -32, 0, 32, 64]
+      : [-120, -60, 0, 60, 120];
 
     // Initial state: Cards stacked in center
     cardNodes.forEach((card, i) => {
@@ -142,7 +161,7 @@ export function CardShufflePreloader({
     const counterObj = { val: 0 };
     const counterTween = gsap.to(counterObj, {
       val: 100,
-      duration: minDuration,
+      duration: effectiveDuration,
       ease: "power2.inOut",
       onUpdate: () => {
         const currentVal = Math.min(100, Math.floor(counterObj.val));
@@ -187,6 +206,11 @@ export function CardShufflePreloader({
         const revealTl = gsap.timeline({
           onComplete: () => {
             document.body.style.overflow = "";
+            try {
+              sessionStorage.setItem("portfolio-preloader-seen", "1");
+            } catch {
+              // ignore private-mode failures
+            }
             gsap.set(container, { display: "none" });
             setIsFinished(true);
             if (onComplete) onComplete();
