@@ -42,7 +42,7 @@ const DEFAULT_CARDS: CardItem[] = [
     id: "card-4",
     title: "Ayumi Rich Merch",
     category: "E-Commerce Catalog",
-    image: "/projects/ayumirich/01-hero-preview.png",
+    image: "/projects/ayumirich/01-hero-landing.png",
     accent: "#ec4899",
   },
   {
@@ -69,7 +69,6 @@ export function CardShufflePreloader({
   cards = DEFAULT_CARDS,
   onComplete,
 }: CardShufflePreloaderProps) {
-  const [mounted, setMounted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [statusText, setStatusText] = useState("INITIALIZING PORTFOLIO ENGINE...");
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
@@ -82,11 +81,7 @@ export function CardShufflePreloader({
   const darkCurtainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || isFinished) return;
+    if (isFinished) return;
 
     const container = containerRef.current;
     const cardNodes = cardElementsRef.current.filter(Boolean) as HTMLDivElement[];
@@ -238,9 +233,9 @@ export function CardShufflePreloader({
       floatTimelines.forEach((t) => t.kill());
       document.body.style.overflow = "";
     };
-  }, [mounted, isFinished, minDuration, onComplete]);
+  }, [isFinished, minDuration, onComplete]);
 
-  if (!mounted || isFinished) return null;
+  if (isFinished) return null;
 
   return (
     <div

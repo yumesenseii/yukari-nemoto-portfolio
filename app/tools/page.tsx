@@ -77,13 +77,8 @@ function RealToolLogo({
 
 export default function ToolsPage() {
   const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
-  const [mounted, setMounted] = useState(false);
   const themeContext = useTheme();
   const isDark = themeContext?.theme === "dark";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Close modal on Escape key
   const handleKeyDown = useCallback(
@@ -379,7 +374,7 @@ export default function ToolsPage() {
       </section>
 
       {/* 4. STUDIO SPECIMEN MODAL (Bespoke & Editorial) */}
-      {mounted && selectedTool && createPortal(
+      {selectedTool && typeof document !== "undefined" && createPortal(
         <div
           role="dialog"
           aria-modal="true"

@@ -256,7 +256,7 @@ export function HorizontalStagesProcess() {
     const container = containerRef.current;
     if (!section || !track || !container) return;
 
-    let ctx = gsap.context(() => {
+    const ctx = gsap.context(() => {
       const getDistance = () => {
         return Math.max(0, track.scrollWidth - container.clientWidth);
       };

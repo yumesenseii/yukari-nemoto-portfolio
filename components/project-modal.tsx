@@ -24,19 +24,13 @@ interface ProjectModalProps {
 
 export function ProjectModal({ project, onClose }: ProjectModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const themeContext = useTheme();
   const isDark = themeContext?.theme === "dark";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Lock body scroll and handle Escape key
   useEffect(() => {
     if (!project) return;
 
-    setActiveImageIndex(0);
     const originalStyle = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -53,7 +47,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
     };
   }, [project, onClose]);
 
-  if (!project || !mounted) return null;
+  if (!project || typeof document === "undefined") return null;
 
   const theme = projectThemes[project.slug] || defaultProjectTheme;
   const hasImages = project.images && project.images.length > 0;

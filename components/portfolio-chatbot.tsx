@@ -18,6 +18,13 @@ import { ChibiMascot } from "@/components/chibi-mascot";
 import { cn } from "@/lib/cn";
 import { profile, projects, tools } from "@/lib/data";
 
+let nextMessageId = 0;
+
+function createMessageId(prefix: string) {
+  nextMessageId += 1;
+  return `${prefix}-${nextMessageId}`;
+}
+
 interface ChatMessage {
   id: string;
   sender: "bot" | "user";
@@ -145,7 +152,7 @@ export function PortfolioChatbot() {
     if (!query) return;
 
     const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
+      id: createMessageId("user"),
       sender: "user",
       text: query,
     };
@@ -163,7 +170,7 @@ export function PortfolioChatbot() {
   // Generate reply strictly using existing portfolio data with a warm, human voice
   const generateAnswer = (rawQuery: string): ChatMessage => {
     const q = rawQuery.toLowerCase();
-    const id = `bot-${Date.now()}`;
+    const id = createMessageId("bot");
 
     // 1. Who are you / About
     if (
