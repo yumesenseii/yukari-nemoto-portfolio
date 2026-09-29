@@ -66,6 +66,20 @@ const sidebarBoot = `
 })();
 `;
 
+const preloaderBoot = `
+(function () {
+  try {
+    var seen = sessionStorage.getItem("portfolio-preloader-seen") === "1";
+    document.documentElement.setAttribute(
+      "data-preloader",
+      seen ? "seen" : "unseen"
+    );
+  } catch (e) {
+    document.documentElement.setAttribute("data-preloader", "unseen");
+  }
+})();
+`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -83,6 +97,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           id="sidebar-boot"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: sidebarBoot }}
+        />
+        <Script
+          id="preloader-boot"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: preloaderBoot }}
         />
       </head>
       <body className="min-h-full font-sans">

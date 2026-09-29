@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -39,9 +40,18 @@ const sortOptions: { value: SortType; label: string; hint: string }[] = [
   { value: "alpha", label: "Sort by: A–Z", hint: "Alphabetical" },
 ];
 
-export default function ProjectsPage() {
+function ProjectsPageInner() {
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  // Deep-link support: top search bar / chatbot navigate here with ?q=
+  const searchParams = useSearchParams();
+  const qParam = searchParams.get("q") ?? "";
+  useEffect(() => {
+    if (qParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSearchQuery(qParam);
+    }
+  }, [qParam]);
   const [sortBy, setSortBy] = useState<SortType>("latest");
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -711,5 +721,13 @@ export default function ProjectsPage() {
         onClose={() => setActiveModalProject(null)}
       />
     </div>
+  );
+}
+
+export default function ProjectsPage() {
+  return (
+    <Suspense>
+      <ProjectsPageInner />
+    </Suspense>
   );
 }

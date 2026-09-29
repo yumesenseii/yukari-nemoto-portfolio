@@ -16,7 +16,7 @@ import {
 import { gsap } from "gsap";
 import { ChibiMascot } from "@/components/chibi-mascot";
 import { cn } from "@/lib/cn";
-import { profile, projects, tools } from "@/lib/data";
+import { profile, projects, tools, type ProjectItem } from "@/lib/data";
 
 let nextMessageId = 0;
 
@@ -47,6 +47,47 @@ const suggestedQuestions = [
   "How can I contact you?",
 ];
 
+// --- Chatbot memory: remembers the last discussed project for follow-ups ---
+interface ChatCtx {
+  project?: ProjectItem;
+}
+
+function normQuery(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Alias keywords (portfolio wording) mapped to real project slugs in lib/data.
+const PROJECT_ALIASES: { keys: string[]; slug: string }[] = [
+  {
+    keys: ["teacher anne", "teacheranne", "anne playschool", "playschool", "enrollment system", "school management system"],
+    slug: "teacher-anne",
+  },
+  {
+    keys: ["executive dashboard", "kpi dashboard", "scorecard", "benchmarking", "dashboard"],
+    slug: "power-bi-dashboard",
+  },
+  {
+    keys: ["power bi data analytics", "business intelligence", "dax"],
+    slug: "power-bi-data-analytics",
+  },
+  {
+    keys: ["gray cafe", "graycafe", "grey cafe", "coffee shop", "coffee ordering", "it211", "it 211"],
+    slug: "gray-cafe",
+  },
+  {
+    keys: ["ayumi", "merchandise", "wholesale", "beverage ordering"],
+    slug: "ayumirich",
+  },
+  {
+    keys: ["cnhs learn", "cnhs"],
+    slug: "cnhs-learn",
+  },
+];
+
 export function PortfolioChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [bubbleText, setBubbleText] = useState("Hello! 👋");
@@ -56,9 +97,10 @@ export function PortfolioChatbot() {
     {
       id: "welcome-1",
       sender: "bot",
-      text: "Hey there! 👋 I'm Yukari's portfolio assistant. Whether you want to check out his latest projects (like the Teacher Anne school platform, Gray Cafe coffee ordering system, or Power BI analytics), explore his tech stack, or grab his resume, I'm here to help! What's on your mind?",
+      text: "Hello! I'm Yukari's portfolio assistant. Ask me about her projects, tools, education, resume, or contact details.",
     },
   ]);
+  const chatCtxRef = useRef<ChatCtx>({});
 
   const panelRef = useRef<HTMLDivElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
@@ -160,189 +202,239 @@ export function PortfolioChatbot() {
     setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInputValue("");
 
-    // Simulate natural thinking delay
+    // Simulate natural thinking delay (memory lives in a ref: always fresh)
     setTimeout(() => {
-      const reply = generateAnswer(query);
-      setMessages((prev) => [...prev, reply]);
+      const { message, ctx } = generateAnswer(query, chatCtxRef.current);
+      chatCtxRef.current = ctx;
+      setMessages((prev) => [...prev, message]);
     }, 320);
   };
 
-  // Generate reply strictly using existing portfolio data with a warm, human voice
-  const generateAnswer = (rawQuery: string): ChatMessage => {
-    const q = rawQuery.toLowerCase();
+  // Answer engine: concise, formal-natural replies grounded only in
+  // portfolio data (lib/data). She/her throughout. Remembers the last
+  // discussed project so follow-ups ("tell me more", "its tech stack") work.
+  const generateAnswer = (
+    rawQuery: string,
+    ctx: ChatCtx,
+  ): { message: ChatMessage; ctx: ChatCtx } => {
+    const q = normQuery(rawQuery);
+    const Q = ` ${q} `;
     const id = createMessageId("bot");
+    // Single words match whole-word only ("it" must not match "with").
+    const has = (...ws: string[]) =>
+      ws.some((w) => (w.includes(" ") ? q.includes(w) : Q.includes(` ${w} `)));
+    const say = (
+      text: string,
+      action?: ChatMessage["action"],
+      next: ChatCtx = {},
+    ): { message: ChatMessage; ctx: ChatCtx } => ({
+      message: { id, sender: "bot", text, action },
+      ctx: next,
+    });
+    const projectLink = (p: ProjectItem) => ({
+      label: "View in Projects",
+      href: `/projects?q=${encodeURIComponent(p.title)}`,
+    });
+    const refersToLast =
+      has("it", "this", "that", "project") || q.includes("this one") || q.includes("that one");
 
-    // 1. Who are you / About
-    if (
-      q.includes("who are you") ||
-      q.includes("about") ||
-      q.includes("who is yukari") ||
-      q.includes("introduce") ||
-      q.includes("background") ||
-      q.includes("bio")
-    ) {
-      return {
-        id,
-        sender: "bot",
-        text: `Hey! 👋 Yukari is a 4th-year BSIT student majoring in Business & Data Analytics at Bulacan State University (Bustos Campus).\n\nHe loves connecting the dots between raw numbers, database architectures, and thoughtful UI/UX design. When he isn't modeling DAX calculations or writing TypeScript, he also freelances in photography and creative media! ✨`,
-        action: {
-          label: "Explore Yukari's Story",
-          href: "/about",
-        },
-      };
+    const findProject = (): ProjectItem | null => {
+      for (const a of PROJECT_ALIASES) {
+        if (a.keys.some((k) => q.includes(k))) {
+          const p = projects.find((pp) => pp.slug === a.slug);
+          if (p) return p;
+        }
+      }
+      if (q.includes("power bi")) {
+        return projects.find((p) => p.slug === "power-bi-data-analytics") ?? null;
+      }
+      return null;
+    };
+
+    const projectIntro = (p: ProjectItem): string => {
+      const topTools = (p.toolsList ?? []).slice(0, 3).join(", ");
+      return (
+        `${p.title} (${p.year}) is her ${p.category} project — ${p.subtitle}. ` +
+        `She served as ${p.role}.` +
+        (topTools ? ` It was built with ${topTools}.` : "")
+      );
+    };
+
+    // 0. Greeting only (lets "hi, tell me about…" fall through to intents)
+    if (/^(hi+|hello|hey|good ?morning|good ?afternoon|good ?evening|yo|sup|howdy|greetings)\b/.test(q) && q.length < 24) {
+      return say("Hello! Ask me about her projects, tools, education, resume, or contact details.");
     }
 
-    // 1.5. Teacher Anne School Management System
-    if (
-      q.includes("teacher anne") ||
-      q.includes("teacher-anne") ||
-      q.includes("school management") ||
-      q.includes("playschool")
-    ) {
-      return {
-        id,
-        sender: "bot",
-        text: `🏫 Teacher Anne is a comprehensive school management system designed to streamline enrollment and centralize student records, attendance, payments, teacher management, announcements, and reporting in one platform for efficient school administration!\n\n• Tech Stack: Next.js, React, TypeScript, Tailwind CSS, Supabase, PostgreSQL, Vercel, Brevo, Figma, Lucide React\n• Frontend: Next.js App Router, React, TypeScript, Tailwind CSS, Lucide React, and Figma UI/UX\n• Backend: Supabase, PostgreSQL database, Supabase Auth & Storage\n• Deployment: Vercel\n• Key Services: Brevo transactional email receipts, QR code generation & scanning for attendance, and GCash payment proof verification!\n\nYou can explore Teacher Anne directly in the Projects view!`,
-        action: {
-          label: "Explore in Projects ↗",
-          href: "/projects",
-        },
-      };
+    // 1. Follow-ups about the last discussed project
+    const last = ctx.project ?? null;
+    if (last) {
+      if (q.length < 48 && /^(tell me )?more|more details|^details|go on|continue|what else|elaborate|and then/.test(q)) {
+        const feats = (last.features ?? [])
+          .slice(0, 2)
+          .map((f) => f.split(":")[0].trim())
+          .filter(Boolean);
+        const extra = last.client
+          ? ` The client was ${last.client}.`
+          : last.subject
+            ? ` It was her ${last.subject} project.`
+            : "";
+        return say(
+          `On ${last.title}, she served as ${last.role}.` +
+            (feats.length ? ` Highlights include ${feats.join(" and ")}.` : "") +
+            extra,
+          projectLink(last),
+          ctx,
+        );
+      }
+      if (has("tech", "stack", "tool", "tools", "technology", "technologies", "built with", "made with", "language", "framework", "database")) {
+        const list = (last.toolsList ?? []).join(", ");
+        return say(
+          list ? `For ${last.title}, she used ${list}.` : `The portfolio does not list a tech stack for ${last.title}.`,
+          { label: "Explore all tools", href: "/tools" },
+          ctx,
+        );
+      }
+      if (has("role", "position") || (refersToLast && has("she", "her") && has("do", "did", "work", "handle"))) {
+        return say(
+          `On ${last.title}, her role was ${last.role}${last.client ? `, for ${last.client}` : ""}.`,
+          projectLink(last),
+          ctx,
+        );
+      }
+      if (has("client", "customer") || (has("who") && has("for"))) {
+        const who = last.client
+          ? `${last.client} is the client behind ${last.title}.`
+          : last.subject
+            ? `${last.title} is an academic project for ${last.subject}.`
+            : `${last.title} is a self-driven academic project.`;
+        return say(who, projectLink(last), ctx);
+      }
+      if (refersToLast && has("about", "what", "describe", "summary", "overview", "background")) {
+        const desc = last.description.length > 240 ? `${last.description.slice(0, 240).trim()}…` : last.description;
+        return say(desc, projectLink(last), ctx);
+      }
     }
 
-    // 1.6. Gray Cafe (Web Systems and Technologies - IT211)
-    if (
-      q.includes("gray cafe") ||
-      q.includes("gray-cafe") ||
-      q.includes("coffee") ||
-      q.includes("cafe") ||
-      q.includes("it211") ||
-      q.includes("web system")
-    ) {
-      return {
-        id,
-        sender: "bot",
-        text: `☕ Gray Cafe is Yukari's final academic project for Web Systems and Technologies (IT211)!\n\n• Tech Stack: HTML5, CSS3, JavaScript, PHP, MySQL (phpMyAdmin), XAMPP, Apache\n• Architecture: Dynamic beverage catalog, responsive shopping cart, live total bill computation, PHP backend order processing, and a relational MySQL database.\n• Development Stack: Configured with local Apache server and MySQL service on XAMPP.\n\nCheck out the video showcase on the Projects page!`,
-        action: {
-          label: "View Gray Cafe in Projects ↗",
-          href: "/projects",
-        },
-      };
+    // 2. Specific project (also catches "tell me about Gray Cafe" shortcuts)
+    const matched = findProject();
+    if (matched) {
+      return say(projectIntro(matched), projectLink(matched), { project: matched });
     }
 
-    // 2. Projects
-    if (
-      q.includes("project") ||
-      q.includes("work") ||
-      q.includes("show me your projects") ||
-      q.includes("portfolio") ||
-      q.includes("details") ||
-      q.includes("overview") ||
-      q.includes("ayumi")
-    ) {
-      return {
-        id,
-        sender: "bot",
-        text: `Yukari has built 6 comprehensive client and academic projects! Here are the highlights:\n\n• 🏫 Teacher Anne — Comprehensive school management system with Next.js, Supabase, QR attendance, and GCash verification.\n• ☕ Gray Cafe — Interactive coffee shop & ordering web system (IT211) using HTML, CSS, JS, PHP, MySQL, and XAMPP.\n• 📊 Power BI Data Analytics — Interactive dashboards with DAX measures and star-schema models.\n• 📈 Power BI Executive Dashboard — Strategic KPI benchmarking scorecard.\n• 🎓 CNHS LEARN — School academic portal and student performance analytics system.\n• 🍹 Ayumi Rich Merchandise — Beverage wholesale ordering & payment management system prototype designed in Figma.\n\nWhich one would you like to see?`,
-        action: {
-          label: "View All Projects",
-          href: "/projects",
-        },
-      };
+    // 3. Resume / CV (existing PDF)
+    if (has("resume", "resumes", "cv", "cvs", "curriculum vitae") || (has("download", "pdf", "file", "copy") && has("resume", "cv"))) {
+      return say("You can view or download her complete resume (PDF) here:", {
+        label: "Open Resume PDF ↗",
+        href: "/projects/Nemoto-Yukari-Tenshi-Resume.pdf",
+        external: true,
+      });
     }
 
-    // 3. Tools / Tech Stack
-    if (
-      q.includes("tool") ||
-      q.includes("tech") ||
-      q.includes("stack") ||
-      q.includes("software") ||
-      q.includes("skills") ||
-      q.includes("what tools do you use")
-    ) {
-      return {
-        id,
-        sender: "bot",
-        text: `Yukari's toolkit blends analytics, engineering, and visual design:\n\n💻 Web & Systems: Next.js, React, TypeScript, Tailwind CSS, PHP, Supabase, PostgreSQL, MySQL, Vercel, XAMPP, VS Code\n📊 Data & Analytics: Power BI, DAX Modeling, Star-Schema Architecture, SQL, Excel\n🎨 Design & Media: Figma (wireframes & interactive prototypes), Photoshop, Lightroom, Canva, CapCut\n\nHe loves taking ideas all the way from research and design wireframes to production code and analytics!`,
-        action: {
-          label: "Explore Tech Stack & Tools",
-          href: "/tools",
-        },
-      };
+    // 4. Contact (existing info only)
+    if (has("contact", "email", "e mail", "mail", "reach", "get in touch", "message", "hire", "phone", "mobile", "telephone", "touch base")) {
+      return say(
+        `She welcomes project, internship, and freelance inquiries at ${profile.email}, and usually replies within a day.`,
+        { label: "Go to Contact Form", href: "/contact" },
+      );
     }
 
-    // 4. Experience & Education
-    if (
-      q.includes("experience") ||
-      q.includes("education") ||
-      q.includes("school") ||
-      q.includes("college") ||
-      q.includes("history") ||
-      q.includes("tell me about your experience")
-    ) {
-      return {
-        id,
-        sender: "bot",
-        text: `Yukari is currently completing his final year in BSIT (Business & Data Analytics) at Bulacan State University — Bustos Campus (2023–Present).\n\nAlong the way, he's led client capstone system designs (like the Ayumi Rich project), built websites for clients (like Teacher Anne Playschool), and participated in regional tech summits!`,
-        action: {
-          label: "View Education & Academic Background",
-          href: "/about",
-        },
-      };
+    // 5. Tools & tech stack (from portfolio data)
+    const toolNames = tools.map((t) => t.name.toLowerCase());
+    const extraTech = ["php", "sql", "dax", "excel", "html", "css", "javascript", "postgresql", "supabase"];
+    if (has("tool", "tools", "tech", "stack", "technology", "technologies", "software", "skill", "skills", "proficient", "uses", "using", "use", "familiar") || toolNames.some((n) => q.includes(n)) || extraTech.some((t) => Q.includes(` ${t} `))) {
+      return say(
+        "Her core stack is Next.js, React, and TypeScript with Supabase, PostgreSQL, and MySQL; Power BI with DAX for analytics; and Figma, Photoshop, and Lightroom for design and media.",
+        { label: "Explore Tech Stack & Tools", href: "/tools" },
+      );
     }
 
-    // 5. Resume
-    if (
-      q.includes("resume") ||
-      q.includes("cv") ||
-      q.includes("open your resume") ||
-      q.includes("download")
-    ) {
-      return {
-        id,
-        sender: "bot",
-        text: `Looking for a copy of Yukari's CV? You can view or download the complete PDF resume directly here:`,
-        action: {
-          label: "Open Resume PDF ↗",
-          href: "/projects/Nemoto-Yukari-Tenshi-Resume.pdf",
-          external: true,
-        },
-      };
+    // 6. Education & location
+    if (has("bulacan")) {
+      return say(
+        "She studies at Bulacan State University – Bustos Campus and is based in Bulacan, Philippines (GMT+8).",
+        { label: "View Education & Background", href: "/about" },
+      );
+    }
+    if (has("education", "school", "schools", "college", "university", "universities", "campus", "degree", "major", "bsit", "study", "studies", "studying", "student", "students", "academic", "humss", "senior high")) {
+      return say(
+        "She is a 4th-year BSIT student majoring in Business & Data Analytics at Bulacan State University – Bustos Campus, where she also completes client and capstone system projects.",
+        { label: "View Education & Background", href: "/about" },
+      );
+    }
+    if (has("where") && has("live", "lives", "based", "from", "location", "located")) {
+      return say("She is based in Bulacan, Philippines (GMT+8).", {
+        label: "Go to Contact Form",
+        href: "/contact",
+      });
+    }
+    if (q.includes("how old") || (has("age", "old") && has("she", "her", "yukari"))) {
+      return say("She is 20 years old.");
     }
 
-    // 6. Contact
+    // 7. Experience (portfolio-grounded only)
+    if (has("experience", "experienced", "internship", "internships", "intern", "freelance", "freelancer", "career", "employed", "job", "jobs")) {
+      return say(
+        "As a final-year student, her experience comes from client and capstone work — including the Teacher Anne Playschool system and the Ayumi Rich merchandise prototype — plus freelance photography and editing.",
+        { label: "View Education & Background", href: "/about" },
+      );
+    }
+
+    // 8. Services & pricing
+    if (has("service", "services", "pricing", "price", "prices", "cost", "rate", "rates", "commission", "photo", "photos", "photography", "edit", "edits", "editing", "video", "videos", "shoot", "design", "website", "websites")) {
+      return say(
+        "She offers photography, photo and video editing, and small business websites. Rates are not listed, so the fastest path is the contact page.",
+        { label: "Go to Contact Form", href: "/contact" },
+      );
+    }
+
+    // 9. About Yukari
     if (
-      q.includes("contact") ||
-      q.includes("email") ||
-      q.includes("hire") ||
-      q.includes("reach") ||
-      q.includes("how can i contact you") ||
-      q.includes("message")
+      has("who is", "who are", "about", "introduce", "introduction", "herself", "background", "biography", "yukari") ||
+      q === "she" || q === "her"
     ) {
-      return {
-        id,
-        sender: "bot",
-        text: `Yukari is always excited to collaborate on new opportunities, internships, or freelance projects! ✉️\n\nYou can reach him directly at yukarinepomuceno@gmail.com or send a message through the contact page:`,
-        action: {
+      return say(
+        "Yukari is a 4th-year BSIT student majoring in Business & Data Analytics. She designs and builds web systems and analytics dashboards, and freelances in photography and creative media.",
+        { label: "Explore Her Story", href: "/about" },
+      );
+    }
+
+    // 10. Projects overview (built from data — count and titles stay truthful)
+    if (has("project", "projects", "portfolio", "work", "works", "built", "build", "client", "clients")) {
+      if (has("together", "with you", "with her", "collaborate", "collaboration")) {
+        return say(`She is open to project work — reach her at ${profile.email} or through the contact form.`, {
           label: "Go to Contact Form",
           href: "/contact",
-        },
-      };
+        });
+      }
+      const items = projects.map((p) => `${p.title} (${p.category})`);
+      const list = items.length > 1 ? `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}` : items[0] ?? "";
+      return say(`She has ${projects.length} featured projects: ${list}. Which one would you like to see?`, {
+        label: "View All Projects",
+        href: "/projects",
+      });
     }
 
-    // Default polite response with suggested topics
+    // 11. Thanks / goodbye
+    if (has("thank", "thanks", "bye", "goodbye", "goodnight")) {
+      return say("You're welcome! Let me know if you'd like to see her projects or tools.");
+    }
+
+    // 12. Fallback — concise, no invention
     return {
-      id,
-      sender: "bot",
-      text: `I'm here to help you explore Yukari's work! You can ask about his projects (like Ayumi Rich or Power BI), his analytics and design tools, or view his resume.`,
-      action: {
-        label: "View Selected Works",
-        onClick: () => {
-          const el = document.getElementById("featured-projects");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-          handleClose();
+      message: {
+        id,
+        sender: "bot",
+        text: "I can answer questions about her projects, tools, education, resume, and contact details. What would you like to explore?",
+        action: {
+          label: "View Selected Works",
+          onClick: () => {
+            const el = document.getElementById("featured-projects");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+            handleClose();
+          },
         },
       },
+      ctx: {},
     };
   };
 
@@ -362,7 +454,7 @@ export function PortfolioChatbot() {
       {isOpen && (
         <div
           ref={panelRef}
-          className="mb-3.5 flex flex-col w-full sm:w-[380px] h-[78dvh] sm:h-[500px] sm:max-h-[82vh] overflow-hidden rounded-3xl sm:rounded-2xl border border-line/80 bg-card/95 dark:bg-[#0a0a0a]/95 shadow-[0_20px_50px_rgba(0,0,0,0.7)] backdrop-blur-xl ring-1 ring-white/10"
+          className="mb-3.5 flex flex-col w-full sm:w-[380px] h-[78dvh] sm:h-[500px] sm:max-h-[82vh] overflow-hidden rounded-3xl sm:rounded-2xl border border-line/80 bg-card/95 shadow-[0_20px_50px_rgba(15,23,42,0.18)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.7)] backdrop-blur-xl ring-1 ring-line"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-line px-4 py-3 bg-tile/40">
@@ -424,19 +516,19 @@ export function PortfolioChatbot() {
                     "flex flex-col max-w-[85%] rounded-2xl px-4 py-2.5 leading-relaxed shadow-2xs",
                     msg.sender === "user"
                       ? "bg-blue text-white rounded-br-xs shadow-xs"
-                      : "bg-tile/80 dark:bg-[#141414] border border-line/70 dark:border-white/10 text-ink rounded-bl-xs",
+                      : "bg-tile/80 border border-line/70 text-ink rounded-bl-xs",
                   )}
                 >
                   <p className="whitespace-pre-line text-[11.5px] leading-relaxed">{msg.text}</p>
                   {msg.action && (
-                    <div className="mt-2.5 pt-2 border-t border-line/60 dark:border-white/10">
+                    <div className="mt-2.5 pt-2 border-t border-line/60">
                       {msg.action.href ? (
                         <Link
                           href={msg.action.href}
                           target={msg.action.external ? "_blank" : undefined}
                           rel={msg.action.external ? "noopener noreferrer" : undefined}
                           onClick={!msg.action.external ? handleClose : undefined}
-                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue dark:text-powder-blue hover:underline"
+                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue hover:underline"
                         >
                           <span>{msg.action.label}</span>
                           {msg.action.external ? (
@@ -526,14 +618,14 @@ export function PortfolioChatbot() {
         )}
 
         {/* Mascot Avatar Button */}
-        <div className="relative">
+        <div className="relative shrink-0">
           <ChibiMascot
             variant="chatbot"
             size={48}
             interactive={true}
             onClick={handleOpen}
             tooltipText={isOpen ? "Close Assistant" : "Chat with Yukari's Assistant"}
-            className="transition-transform hover:scale-110 active:scale-95"
+            className="shrink-0 transition-transform hover:scale-110 active:scale-95 max-lg:scale-110 max-lg:origin-bottom-right"
           />
         </div>
       </div>

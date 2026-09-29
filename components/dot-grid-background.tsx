@@ -67,7 +67,9 @@ export function DotGridBackground() {
       ctx.clearRect(0, 0, width, height);
 
       const dark = isDarkMode();
-      const baseDotAlpha = dark ? 0.05 : 0.04;
+      // Mobile (<640px): halve dot presence to keep the background subtle.
+      const faint = width < 640 ? 0.45 : 1;
+      const baseDotAlpha = (dark ? 0.05 : 0.04) * faint;
       const dotColor = dark ? "255, 255, 255" : "15, 23, 42";
       const illuminatedColor = dark ? "147, 197, 253" : "29, 78, 216";
       const spacing = 28;
@@ -131,7 +133,9 @@ export function DotGridBackground() {
     const renderStatic = () => {
       ctx.clearRect(0, 0, width, height);
       const dark = isDarkMode();
-      const baseDotAlpha = dark ? 0.05 : 0.04;
+      // Mobile (<640px): halve dot presence to keep the background subtle.
+      const faint = width < 640 ? 0.45 : 1;
+      const baseDotAlpha = (dark ? 0.05 : 0.04) * faint;
       const dotColor = dark ? "255, 255, 255" : "15, 23, 42";
       const spacing = 28;
       const baseRadius = 0.8;

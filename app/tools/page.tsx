@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
@@ -75,7 +76,7 @@ function RealToolLogo({
   }
 }
 
-export default function ToolsPage() {
+function ToolsPageInner() {
   const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
   const themeContext = useTheme();
   const isDark = themeContext?.theme === "dark";
@@ -120,6 +121,15 @@ export default function ToolsPage() {
 
   const [selectedFilter, setSelectedFilter] = useState<FilterCategory>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  // Deep-link support: top search bar navigates here with ?q=
+  const searchParams = useSearchParams();
+  const qParam = searchParams.get("q") ?? "";
+  useEffect(() => {
+    if (qParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSearchQuery(qParam);
+    }
+  }, [qParam]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { All: tools.length };
@@ -540,5 +550,13 @@ export default function ToolsPage() {
         document.body,
       )}
     </div>
+  );
+}
+
+export default function ToolsPage() {
+  return (
+    <Suspense>
+      <ToolsPageInner />
+    </Suspense>
   );
 }

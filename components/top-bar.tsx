@@ -31,7 +31,7 @@ export function TopBar({ onOpenMobile }: TopBarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Keyboard shortcut Ctrl+K or / to focus search
+  // Keyboard shortcut Ctrl+K or / to focus search, Escape to dismiss
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -39,6 +39,10 @@ export function TopBar({ onOpenMobile }: TopBarProps) {
         const input = searchRef.current?.querySelector("input");
         input?.focus();
         setSearchFocused(true);
+      }
+      if (e.key === "Escape") {
+        setSearchFocused(false);
+        (document.activeElement as HTMLElement | null)?.blur?.();
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -138,7 +142,8 @@ export function TopBar({ onOpenMobile }: TopBarProps) {
                               type="button"
                               onClick={() => {
                                 setSearchFocused(false);
-                                router.push("/projects");
+                                (document.activeElement as HTMLElement | null)?.blur?.();
+                                router.push(`/projects?q=${encodeURIComponent(p.title)}`);
                               }}
                               className="flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-left text-xs transition-colors hover:bg-tile"
                             >
@@ -163,13 +168,21 @@ export function TopBar({ onOpenMobile }: TopBarProps) {
                       <ul className="mt-1 space-y-1">
                         {filteredCapabilities.map((c) => (
                           <li key={c.title}>
-                            <div className="rounded-lg px-2 py-1.5 text-xs">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSearchFocused(false);
+                                (document.activeElement as HTMLElement | null)?.blur?.();
+                                router.push("/about");
+                              }}
+                              className="w-full cursor-pointer rounded-lg px-2 py-1.5 text-left text-xs transition-colors hover:bg-tile"
+                            >
                               <span className="font-semibold text-blue">
                                 {c.title}
                               </span>{" "}
                               —{" "}
                               <span className="text-muted">{c.desc}</span>
-                            </div>
+                            </button>
                           </li>
                         ))}
                       </ul>
@@ -183,12 +196,18 @@ export function TopBar({ onOpenMobile }: TopBarProps) {
                       </p>
                       <div className="mt-1 flex flex-wrap gap-1.5 px-2">
                         {filteredTools.map((t) => (
-                          <span
+                          <button
                             key={t.name}
-                            className="rounded-md border border-line bg-tile px-2 py-0.5 text-[11px] text-ink"
+                            type="button"
+                            onClick={() => {
+                              setSearchFocused(false);
+                              (document.activeElement as HTMLElement | null)?.blur?.();
+                              router.push(`/tools?q=${encodeURIComponent(t.name)}`);
+                            }}
+                            className="cursor-pointer rounded-md border border-line bg-tile px-2 py-0.5 text-[11px] text-ink transition-colors hover:border-blue"
                           >
                             {t.name}
-                          </span>
+                          </button>
                         ))}
                       </div>
                     </div>

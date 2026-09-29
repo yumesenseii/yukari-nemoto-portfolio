@@ -57,6 +57,7 @@ import {
 import { ChibiMascot } from "@/components/chibi-mascot";
 import { HorizontalStagesProcess } from "@/components/horizontal-stages-process";
 import { Magnetic } from "@/components/magnetic-button";
+import { onLoaderDone } from "@/lib/loader-ready";
 import { cn } from "@/lib/cn";
 
 if (typeof window !== "undefined") {
@@ -304,9 +305,11 @@ export default function AboutPage() {
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (prefersReducedMotion) return;
 
+      let heroTl: gsap.core.Timeline | null = null;
       const ctx = gsap.context(() => {
-        // Hero entrance
-        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        // Hero entrance (paused until the loader lifts)
+        const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+        heroTl = tl;
 
         tl.fromTo(
           ".hero-fade-in",
@@ -347,7 +350,13 @@ export default function AboutPage() {
         });
       }, containerRef);
 
-      return () => ctx.revert();
+      const off = onLoaderDone(() => {
+        heroTl?.play();
+      });
+      return () => {
+        off();
+        ctx.revert();
+      };
     },
     { scope: containerRef }
   );

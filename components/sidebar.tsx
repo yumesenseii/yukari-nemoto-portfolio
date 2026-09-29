@@ -12,11 +12,11 @@ import {
   Mail,
   User,
   Wrench,
-  X,
 } from "lucide-react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useSidebar } from "@/components/app-shell";
+import { onLoaderDone } from "@/lib/loader-ready";
 import { GithubIcon, LinkedinIcon } from "@/components/brand-icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/cn";
@@ -61,12 +61,8 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileOpen, onClose]);
 
-  // Initial clean sidebar entrance (desktop only).
-  // NOTE: this must not leave inline transform/translate styles behind:
-  // GSAP writes `translate: none` inline on completion, which would
-  // permanently override the mobile drawer's `max-lg:-translate-x-full`
-  // class and make the drawer unclosable. clearProps removes the residue,
-  // and mobile skips the animation entirely.
+  // Initial clean sidebar entrance, held paused until the loader lifts
+  // so it isn't spent unseen behind the overlay.
   useGSAP(
     () => {
       if (typeof window !== "undefined" && window.innerWidth < 1024) return;
@@ -74,7 +70,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (prefersReducedMotion) return;
 
-      gsap.fromTo(
+      const entrance = gsap.fromTo(
         sidebarRef.current,
         { opacity: 0, x: -12 },
         {
@@ -82,9 +78,11 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           x: 0,
           duration: 0.6,
           ease: "power3.out",
+          paused: true,
           clearProps: "all",
         },
       );
+      return onLoaderDone(() => entrance.play());
     },
     { scope: sidebarRef },
   );
@@ -147,8 +145,8 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           aria-hidden
           className="pointer-events-none absolute -top-24 -right-24 size-64 rounded-full bg-blue/10 blur-3xl lg:hidden"
         />
-        {/* Monogram and profile heading */}
-        <div className="flex items-center justify-between">
+        {/* Monogram and profile heading (drawer closes via backdrop, links, or Escape) */}
+        <div className="flex items-center">
           <div
             className={cn(
               "flex items-center gap-3 transition-all duration-200",
@@ -179,16 +177,6 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
               </p>
             </div>
           </div>
-
-          {/* Mobile close button */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line text-muted transition-colors hover:text-ink lg:hidden"
-            aria-label="Close menu"
-          >
-            <X className="size-4" strokeWidth={1.75} />
-          </button>
         </div>
 
         {/* Mobile-only availability status */}

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { gsap } from "gsap";
+import { onLoaderDone } from "@/lib/loader-ready";
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -18,24 +19,26 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     const bar = progressBarRef.current;
     if (!container) return;
 
-    // Fast top progress accent pulse
-    if (bar) {
-      gsap.fromTo(
-        bar,
-        { width: "0%", opacity: 1 },
-        {
-          width: "100%",
-          duration: 0.28,
-          ease: "power2.out",
-          onComplete: () => {
-            gsap.to(bar, { opacity: 0, duration: 0.15 });
+    // Fast top progress accent pulse (released with the entrance below)
+    const barTween = bar
+      ? gsap.fromTo(
+          bar,
+          { width: "0%", opacity: 1 },
+          {
+            width: "100%",
+            duration: 0.28,
+            ease: "power2.out",
+            paused: true,
+            onComplete: () => {
+              gsap.to(bar, { opacity: 0, duration: 0.15 });
+            },
           },
-        }
-      );
-    }
+        )
+      : null;
 
     // Smooth, cinematic entrance for the incoming page content (0.3s)
-    gsap.fromTo(
+    // Built paused so it plays after the loader lifts, not behind it.
+    const entrance = gsap.fromTo(
       container,
       { opacity: 0, y: 12 },
       {
@@ -43,9 +46,18 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         y: 0,
         duration: 0.32,
         ease: "power3.out",
+        paused: true,
         clearProps: "transform,opacity",
-      }
+      },
     );
+
+    const off = onLoaderDone(() => {
+      barTween?.play();
+      entrance.play();
+    });
+    return () => {
+      off();
+    };
   }, [pathname]);
 
   return (

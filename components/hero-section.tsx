@@ -11,6 +11,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Magnetic } from "@/components/magnetic-button";
 import { ThemedPortrait } from "@/components/themed-portrait";
+import { onLoaderDone } from "@/lib/loader-ready";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -85,7 +86,9 @@ export function HeroSection() {
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (prefersReducedMotion) return;
 
-      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      // Built paused: the loader gate releases it so the entrance plays
+      // visibly after the loader lifts instead of unseen behind it.
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
 
       // 1. Eyebrow upward reveal
       tl.fromTo(
@@ -151,6 +154,7 @@ export function HeroSection() {
       );
 
       // Subtle restrained parallax on hero image during scroll
+      // (scroll-driven, so it needs no gating — it rests at start at top)
       gsap.to(".hero-portrait-frame", {
         yPercent: 8,
         ease: "none",
@@ -161,6 +165,8 @@ export function HeroSection() {
           scrub: 0.5,
         },
       });
+
+      return onLoaderDone(() => tl.play());
     },
     { scope: containerRef }
   );
